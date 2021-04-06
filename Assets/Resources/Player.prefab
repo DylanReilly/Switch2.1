@@ -12,9 +12,10 @@ GameObject:
   - component: {fileID: 8066054977339267482}
   - component: {fileID: -8773830840362150525}
   - component: {fileID: 3081565277193815260}
+  - component: {fileID: 9038351359418696946}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: LocalPlayer
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -69,7 +70,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0937362348589c04584ca26e5eac1c59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 10
+  myCards: []
+  imagePrefab: {fileID: 7375314748806015419, guid: 16597be7c7ce66f49b20c0182a90046c, type: 3}
+  handStartPosition: {fileID: 0}
+  playerId: -1
 --- !u!114 &3081565277193815260
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -103,6 +107,21 @@ MonoBehaviour:
     InterpolateOption: 0
     InterpolateMoveTowardsSpeed: 1
     InterpolateLerpSpeed: 0
+--- !u!114 &9038351359418696946
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2340521796660556482}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 938ac70200576484c87e131e10ab214a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  imagePrefab: {fileID: 7375314748806015419, guid: 16597be7c7ce66f49b20c0182a90046c, type: 3}
+  HandStartPosition: {fileID: 0}
+  player: {fileID: -8773830840362150525}
 --- !u!1 &5713153186804810188
 GameObject:
   m_ObjectHideFlags: 0
