@@ -26,7 +26,7 @@ public class SpawnPlayers : MonoBehaviour
         //    }
         //}
         spawnPoint = spawnPoints[Random.Range(0, 4)].transform;
-
+        
         PhotonNetwork.Instantiate(player.name, spawnPoint.position, Quaternion.identity);
     }
 

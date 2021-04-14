@@ -30,9 +30,20 @@ public class Deck : MonoBehaviour
         return card;
     }
 
-    public void PlayCard(Card card)
+    public void PlayCard(short cardId)
     {
-        playDeck.Push(card);
+        playDeck.Push(lookupDeck[cardId]);
+
+        //If you are the host, destroy all cards on the network and add new card
+        //Host does this to stop multiple copies of each card from being instantiated
+        if (PhotonNetwork.IsMasterClient)
+        {
+            if (GameObject.FindGameObjectWithTag("Card") != null)
+            {
+                PhotonNetwork.Destroy(GameObject.FindGameObjectWithTag("Card"));
+            }
+            PhotonNetwork.Instantiate("Cards/CardInstances/" + lookupDeck[cardId].name, transform.position, Quaternion.identity);
+        }
     }
 
     public Card FindCard(short id)
@@ -45,15 +56,33 @@ public class Deck : MonoBehaviour
         drawDeck.Push(card);
     }
 
+    public bool CheckCardMatch(Card card) 
+    {
+        if (card.GetValue() == GetPlayDeckTopCard().GetValue())
+        {
+            return true;
+        }
+        else if (card.GetSuit() == GetPlayDeckTopCard().GetSuit())
+        {
+            return true;
+        }
+        else if (card.GetValue() == 1)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     public void Start()
     {
         LoadDeck();
-        PlayCard(DrawCard());
+        //PlayCard(DrawCard().GetCardId());
 
-        if (PhotonNetwork.IsMasterClient)
-        {
-            PhotonNetwork.Instantiate("Cards/CardInstances/" + GetPlayDeckTopCard().name, transform.position, Quaternion.identity);
-        }
+        PlayCard(DrawCard().GetCardId());
+        //PhotonNetwork.Instantiate("Cards/CardInstances/" + GetPlayDeckTopCard().name, transform.position, Quaternion.identity);
     }
 
     #region Deck handling
@@ -93,6 +122,7 @@ public class Deck : MonoBehaviour
         //Push shuffled numbers onto stack
         foreach (Card card in loadDeck)
         {
+            //Generic list of type Card
             drawDeck.Push(card);
             lookupDeck.Add(card.GetCardId(), card);
         }

@@ -22,11 +22,11 @@ PrefabInstance:
     - target: {fileID: 244533855133718836, guid: 40c975838956dae4aabe2fac75875902, type: 3}
       propertyPath: cardModel
       value: 
-      objectReference: {fileID: 7624333573131279032}
+      objectReference: {fileID: 100000, guid: fe2ef84777efbad47bd10a4d3f2bb68c, type: 3}
     - target: {fileID: 244533855133718836, guid: 40c975838956dae4aabe2fac75875902, type: 3}
       propertyPath: cardSprite
       value: 
-      objectReference: {fileID: 21300100, guid: 3924dd0449c173e4aa69d07bdb73d5ed, type: 3}
+      objectReference: {fileID: 21300102, guid: 3924dd0449c173e4aa69d07bdb73d5ed, type: 3}
     - target: {fileID: 1348619568912904483, guid: 40c975838956dae4aabe2fac75875902, type: 3}
       propertyPath: m_Name
       value: K_Clubs Variant
@@ -147,8 +147,3 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7c136c05643fc4149a3fadaf4b863e7b, type: 3}
---- !u!1 &7624333573131279032 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 100000, guid: 7c136c05643fc4149a3fadaf4b863e7b, type: 3}
-  m_PrefabInstance: {fileID: 7624333573131246616}
-  m_PrefabAsset: {fileID: 0}

@@ -8,7 +8,8 @@ using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
-    [SerializeField] List<Card> myCards = new List<Card>();
+    Dictionary<short, Card> myCards = new Dictionary<short, Card>();
+    Dictionary<short, Image> uiCards = new Dictionary<short, Image>();
     [SerializeField] private Image imagePrefab;
     [SerializeField] GameObject handStartPosition;
 
@@ -17,9 +18,6 @@ public class Player : MonoBehaviour
     PhotonView view = null;
     Camera mainCamera = null;
     Canvas hud = null;
-
-    //An offset to stop cards rendering directly on top of each other
-    int OFFSET = 0;
 
     public void SetPlayerId(int id)
     {
@@ -39,33 +37,73 @@ public class Player : MonoBehaviour
         }
     }
 
-    //Takes a card from the deck and adds it to the players hand
+    //Takes a card from the drawdeck and adds it to the players hand
     public void DrawCard()
     {
         Card card = deck.DrawCard();
-        myCards.Add(card);
-        UpdateCardUI(card.GetCardId());
+        myCards.Add(card.GetCardId(), card);
+        UpdateCardUI();
+    }
+
+    //Removes a card from the players hand and adds it to the playdeck
+    public void PlayCard(short cardId)
+    {
+        //Check if the card to play matches the top card of the deck. If not, do nothing
+        if (!deck.CheckCardMatch(myCards[cardId]))
+        {
+            return;
+        }
+        myCards.Remove(cardId);
+        deck.PlayCard(cardId);
+        UpdateCardUI();
     }
 
     //Simulates another player drawing a card. Does not add the card to the players hand
     [PunRPC]
-    public void UpdateDeckRpc()
+    public void UpdateDrawDeckRpc()
     {
         deck.DrawCard();
     }
 
-    public void UpdateCardUI(short cardId)
+    //Simulates another player playing a card. Does not affect the local players hand
+    [PunRPC]
+    public void UpdatePlayDeckRpc(short cardId)
     {
-        //Renders the latest card in the players hand to the UI
-        Card card = deck.FindCard(cardId);
+        deck.PlayCard(cardId);
+    }
 
-        Image imageInstance = Instantiate(imagePrefab);
-        imageInstance.transform.SetParent(handStartPosition.transform, false);
-        imageInstance.sprite = card.GetCardSprite();
-        imageInstance.rectTransform.anchoredPosition += new Vector2(OFFSET, 0);
+    public void UpdateCardUI()
+    {
+        int offset = 0;
 
-        //Offset moves cards over so they aren't rendered on top of each other
-        OFFSET += 50;
+        //Destroys all cards to accomidate cards being removed
+        var cardList = GameObject.FindGameObjectsWithTag("UICard");
+        foreach (GameObject uiCard in cardList)
+        {
+            Destroy(uiCard);
+        }
+
+        //Removes all pairs so the dictionary can be re-populated below
+        uiCards.Clear();
+
+        foreach (KeyValuePair<short, Card> card in myCards)
+        {
+            //Button imageInstance = Instantiate(imagePrefab);
+            Image imageInstance = Instantiate(imagePrefab);
+            imageInstance.transform.SetParent(handStartPosition.transform, false);
+            imageInstance.sprite = card.Value.GetCardSprite();
+            imageInstance.rectTransform.anchoredPosition += new Vector2(offset, 0);
+
+            uiCards.Add(card.Value.GetCardId(), imageInstance);
+
+            //Offset moves cards over so they aren't rendered on top of each other
+            offset += 50;
+        }
+    }
+
+    public void SelectCard(short id)
+    {
+        uiCards[id].rectTransform.anchoredPosition += new Vector2(uiCards[id].rectTransform.anchoredPosition.x, uiCards[id].rectTransform.anchoredPosition.y + 20);
     }
 
     private void Update()
@@ -78,9 +116,21 @@ public class Player : MonoBehaviour
             }
             else
             {
-                view.RPC("UpdateDeckRpc", RpcTarget.Others);
+                view.RPC("UpdateDrawDeckRpc", RpcTarget.Others);
             }
-           
         }
-    }
+
+        if (Input.GetKeyUp(KeyCode.P))
+        {
+            short temp = 39;
+            if (view.IsMine)
+            {
+                PlayCard(temp);
+            }
+            else
+            {
+                view.RPC("UpdatePlayDeckRpc", RpcTarget.Others, temp);
+            }
+        }
+    }    
 }
