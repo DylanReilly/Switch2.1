@@ -1,16 +1,18 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class UICardHandler : MonoBehaviour
 {
-    bool isSelcted = false;
+    public bool isSelected = false;
+    public static event Action<bool, short> cardSelected;
 
     public void OnEnter()
     {
         Image image = gameObject.GetComponent<Image>();
-        if (!isSelcted)
+        if (!isSelected)
         {
             image.rectTransform.anchoredPosition += new Vector2(0, 50);
         }
@@ -19,22 +21,31 @@ public class UICardHandler : MonoBehaviour
     public void OnExit()
     {
         Image image = gameObject.GetComponent<Image>();
-        if (!isSelcted)
+        if (!isSelected)
         {
             image.rectTransform.anchoredPosition -= new Vector2(0, 50);
         }
     }
 
     public void OnClick()
-    {
+    {   
         Image image = gameObject.GetComponent<Image>();
-        if (isSelcted) 
-        { 
-            isSelcted = false; 
+        short numSize = 1;
+        if(image.sprite.name.Length > 14)
+        {
+            numSize = 2;
+        }
+        short imageId = short.Parse(image.sprite.name.Substring(13, numSize));
+
+        if (isSelected) 
+        {
+            isSelected = false;
+            cardSelected?.Invoke(false, imageId);
         }
         else 
         { 
-            isSelcted = true; 
+            isSelected = true;
+            cardSelected?.Invoke(true, imageId);
         }
     }
 }

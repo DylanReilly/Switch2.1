@@ -71,7 +71,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 244533855133718836, guid: 40c975838956dae4aabe2fac75875902, type: 3}
       propertyPath: id
-      value: 1
+      value: 26
       objectReference: {fileID: 0}
     - target: {fileID: 244533855133718836, guid: 40c975838956dae4aabe2fac75875902, type: 3}
       propertyPath: suit
@@ -91,7 +91,7 @@ PrefabInstance:
       objectReference: {fileID: 21300052, guid: 3924dd0449c173e4aa69d07bdb73d5ed, type: 3}
     - target: {fileID: 1348619568912904483, guid: 40c975838956dae4aabe2fac75875902, type: 3}
       propertyPath: m_Name
-      value: Ace_Hearts
+      value: A_Hearts Variant
       objectReference: {fileID: 0}
     - target: {fileID: 1806632225531325221, guid: 40c975838956dae4aabe2fac75875902, type: 3}
       propertyPath: m_RootOrder

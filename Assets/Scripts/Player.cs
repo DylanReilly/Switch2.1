@@ -9,12 +9,11 @@ public class Player : MonoBehaviour
 {
     Dictionary<short, Card> myCards = new Dictionary<short, Card>();
     Dictionary<short, Image> uiCards = new Dictionary<short, Image>();
-    List<short> cardsToPlay = new List<short>();
+    [SerializeField]List<short> cardsToPlay = new List<short>();
 
     [SerializeField] private Image imagePrefab;
     [SerializeField] GameObject handStartPosition;
 
-    private int playerId = -1;
     Deck deck = null;
     PhotonView view = null;
     Camera mainCamera = null;
@@ -22,37 +21,27 @@ public class Player : MonoBehaviour
 
     public const byte PlayCardEventCode = 1;
 
-    public void SetPlayerId(int id)
-    {
-        playerId = id;
-    }
-
     private void Start()
     {
         mainCamera = Camera.main;
         view = GetComponent<PhotonView>();
         hud = GameObject.FindWithTag("Hud").GetComponent<Canvas>();
-        handStartPosition = hud.transform.Find("HandStartPosition").gameObject;
-        if (view.IsMine)
-        {
-            playerId = view.ViewID;
-        }
-
-        if (PhotonNetwork.IsMasterClient)
-        {
-            PhotonNetwork.Instantiate("Deck", new Vector3(0, 1.1f, 0), Quaternion.identity);
-        }
         deck = GameObject.FindWithTag("Deck").GetComponent<Deck>();
+        handStartPosition = hud.transform.Find("HandStartPosition").gameObject;
 
         //Subscribe to event
         PhotonNetwork.NetworkingClient.EventReceived += PlayCard;
+        UICardHandler.cardSelected += ChangeCardsToPlay;
     }
 
     private void OnDestroy()
     {
         //Unsubscribe from event
         PhotonNetwork.NetworkingClient.EventReceived -= PlayCard;
+        UICardHandler.cardSelected -= ChangeCardsToPlay;
     }
+
+    #region Card Handling
 
     //Takes a card from the drawdeck and adds it to the players hand
     public void DrawCard()
@@ -66,12 +55,37 @@ public class Player : MonoBehaviour
     public void PlayCard(EventData photonEvent)
     {
         byte eventCode = photonEvent.Code;
-        if(eventCode == PlayCardEventCode)
+        if (eventCode == PlayCardEventCode)
         {
             short[] cards = (short[])photonEvent.CustomData;
             deck.PlayCard(cards);
-        }   
+        }
     }
+
+    //Adds or removes cards from play hand when selected
+    public void ChangeCardsToPlay(bool isPickup, short cardId)
+    {
+        if (isPickup)
+        {
+            cardsToPlay.Add(cardId);
+        }
+        else
+        {
+            cardsToPlay.Remove(cardId);
+        }
+    }
+
+    
+    public void CardMistake(short numCards)
+    {
+        for (int i = 0; i < numCards; i++)
+        {
+            NetworkDrawCard();
+        }
+    }
+    #endregion
+
+    #region Networking
 
     //Simulates another player drawing a card. Does not add the card to the players hand
     [PunRPC]
@@ -79,6 +93,36 @@ public class Player : MonoBehaviour
     {
         deck.DrawCard();
     }
+
+    //Sends event to all players to replace the top card with cardId "content"
+    private void NetworkPlayCard()
+    {
+        short[] content = cardsToPlay.ToArray();
+        RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
+        PhotonNetwork.RaiseEvent(PlayCardEventCode, content, eventOptions, SendOptions.SendReliable);
+
+        //Removes the card from player hand and updates UI to match
+        foreach (short cardId in cardsToPlay)
+        {
+            myCards.Remove(cardId);
+        }
+        cardsToPlay.Clear();
+    }
+    private void NetworkDrawCard()
+    {
+        if (view.IsMine)
+        {
+            DrawCard();
+        }
+        else
+        {
+            view.RPC("UpdateDrawDeckRpc", RpcTarget.Others);
+        }
+    }
+
+    #endregion
+
+    #region UI
 
     public void UpdateCardUI()
     {
@@ -114,48 +158,33 @@ public class Player : MonoBehaviour
         uiCards[id].rectTransform.anchoredPosition += new Vector2(uiCards[id].rectTransform.anchoredPosition.x, uiCards[id].rectTransform.anchoredPosition.y + 20);
     }
 
+    #endregion
+
     private void Update()
     {
         if (Input.GetKeyUp(KeyCode.Space))
         {
-            if (view.IsMine)
-            {
-                DrawCard();
-            }
-            else
-            {
-                view.RPC("UpdateDrawDeckRpc", RpcTarget.Others);
-            }
+            NetworkDrawCard();
         }
+
 
         if (Input.GetKeyUp(KeyCode.P))
         {
             if (view.IsMine)
             {
-                cardsToPlay.Add(38);
-                cardsToPlay.Add(25);
-                cardsToPlay.Add(12);
 
                 //Checks if the first card matches the deck ie: can be played
                 if (!deck.CheckCardMatch(cardsToPlay[0])) 
                 {
-                    //TODO 2 cards cause you should know better...
+                    //Draw two cards for a mistake
+                    CardMistake(2);
                     Debug.Log("Invalid card");
                     return; 
                 }
 
-                //Sends event to all players to replace the top card with cardId "content"
-                short[] content = cardsToPlay.ToArray();
-                RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
-                PhotonNetwork.RaiseEvent(PlayCardEventCode, content, eventOptions, SendOptions.SendReliable);
-
-                //Removes the card from player hand and updates UI to match
-                foreach (short cardId in cardsToPlay)
-                {
-                    myCards.Remove(cardId);
-                }
+                NetworkPlayCard();
                 UpdateCardUI();
             }
         }
-    }    
+    }
 }
