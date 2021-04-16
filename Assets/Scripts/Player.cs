@@ -30,7 +30,6 @@ public class Player : MonoBehaviour
     private void Start()
     {
         mainCamera = Camera.main;
-        deck = GameObject.FindWithTag("Deck").GetComponent<Deck>();
         view = GetComponent<PhotonView>();
         hud = GameObject.FindWithTag("Hud").GetComponent<Canvas>();
         handStartPosition = hud.transform.Find("HandStartPosition").gameObject;
@@ -38,6 +37,12 @@ public class Player : MonoBehaviour
         {
             playerId = view.ViewID;
         }
+
+        if (PhotonNetwork.IsMasterClient)
+        {
+            PhotonNetwork.Instantiate("Deck", new Vector3(0, 1.1f, 0), Quaternion.identity);
+        }
+        deck = GameObject.FindWithTag("Deck").GetComponent<Deck>();
 
         //Subscribe to event
         PhotonNetwork.NetworkingClient.EventReceived += PlayCard;

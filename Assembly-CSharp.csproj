@@ -60,6 +60,7 @@
     <Compile Include="Assets\Scripts\UICardRenderer.cs" />
     <Compile Include="Assets\Scripts\Player.cs" />
     <Compile Include="Assets\Scripts\Deck.cs" />
+    <Compile Include="Assets\Scripts\CardSelectionHandler.cs" />
     <Compile Include="Assets\Scripts\Menus\ConnectToServer.cs" />
     <Compile Include="Assets\Scripts\SpawnPlayers.cs" />
     <Compile Include="Assets\Photon\PhotonLibs\WebSocket\SocketWebTcp.cs" />
@@ -67,7 +68,7 @@
     <Compile Include="Assets\Scripts\SpawnPoint.cs" />
     <Compile Include="Assets\Scripts\PhotonRegister.cs" />
     <Compile Include="Assets\Photon\PhotonLibs\WebSocket\WebSocket.cs" />
-    <Compile Include="Assets\Scripts\CardSelectionHandler.cs" />
+    <Compile Include="Assets\Scripts\UICardHandler.cs" />
   </ItemGroup>
   <ItemGroup>
      <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />
