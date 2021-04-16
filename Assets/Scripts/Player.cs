@@ -1,10 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using Photon.Pun;
-using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using Photon.Realtime;
+using Photon.Pun;
+using ExitGames.Client.Photon;
 
 public class Player : MonoBehaviour
 {
@@ -13,11 +12,13 @@ public class Player : MonoBehaviour
     [SerializeField] private Image imagePrefab;
     [SerializeField] GameObject handStartPosition;
 
-    [SerializeField]private int playerId = -1;
+    private int playerId = -1;
     Deck deck = null;
     PhotonView view = null;
     Camera mainCamera = null;
     Canvas hud = null;
+
+    public const byte PlayCardEventCode = 1;
 
     public void SetPlayerId(int id)
     {
@@ -35,6 +36,15 @@ public class Player : MonoBehaviour
         {
             playerId = view.ViewID;
         }
+
+        //Subscribe to event
+        PhotonNetwork.NetworkingClient.EventReceived += PlayCard;
+    }
+
+    private void OnDestroy()
+    {
+        //Unsubscribe from event
+        PhotonNetwork.NetworkingClient.EventReceived -= PlayCard;
     }
 
     //Takes a card from the drawdeck and adds it to the players hand
@@ -45,17 +55,15 @@ public class Player : MonoBehaviour
         UpdateCardUI();
     }
 
-    //Removes a card from the players hand and adds it to the playdeck
-    public void PlayCard(short cardId)
+    //Recives event to play card, updating deck on all clients
+    public void PlayCard(EventData photonEvent)
     {
-        //Check if the card to play matches the top card of the deck. If not, do nothing
-        if (!deck.CheckCardMatch(myCards[cardId]))
+        byte eventCode = photonEvent.Code;
+        if(eventCode == PlayCardEventCode)
         {
-            return;
-        }
-        myCards.Remove(cardId);
-        deck.PlayCard(cardId);
-        UpdateCardUI();
+            short cardId = (short)photonEvent.CustomData;
+            deck.PlayCard(cardId);
+        }   
     }
 
     //Simulates another player drawing a card. Does not add the card to the players hand
@@ -67,9 +75,9 @@ public class Player : MonoBehaviour
 
     //Simulates another player playing a card. Does not affect the local players hand
     [PunRPC]
-    public void UpdatePlayDeckRpc(short cardId)
+    public void UpdatePlayDeckRpc()
     {
-        deck.PlayCard(cardId);
+        deck.RenderCards();
     }
 
     public void UpdateCardUI()
@@ -122,14 +130,16 @@ public class Player : MonoBehaviour
 
         if (Input.GetKeyUp(KeyCode.P))
         {
-            short temp = 39;
             if (view.IsMine)
             {
-                PlayCard(temp);
-            }
-            else
-            {
-                view.RPC("UpdatePlayDeckRpc", RpcTarget.Others, temp);
+                //Sends event to all players to replace the top card with cardId "content"
+                short content = 25;
+                RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
+                PhotonNetwork.RaiseEvent(PlayCardEventCode, content, eventOptions, SendOptions.SendReliable);
+
+                //Removes the card from player hand and updates UI to match
+                myCards.Remove(content);
+                UpdateCardUI();
             }
         }
     }    

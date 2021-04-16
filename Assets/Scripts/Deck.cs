@@ -33,7 +33,11 @@ public class Deck : MonoBehaviour
     public void PlayCard(short cardId)
     {
         playDeck.Push(lookupDeck[cardId]);
+        RenderCards();
+    }
 
+    public void RenderCards()
+    {
         //If you are the host, destroy all cards on the network and add new card
         //Host does this to stop multiple copies of each card from being instantiated
         if (PhotonNetwork.IsMasterClient)
@@ -42,7 +46,7 @@ public class Deck : MonoBehaviour
             {
                 PhotonNetwork.Destroy(GameObject.FindGameObjectWithTag("Card"));
             }
-            PhotonNetwork.Instantiate("Cards/CardInstances/" + lookupDeck[cardId].name, transform.position, Quaternion.identity);
+            PhotonNetwork.Instantiate("Cards/CardInstances/" + lookupDeck[playDeck.Peek().GetCardId()].name, transform.position, Quaternion.identity);
         }
     }
 
@@ -58,18 +62,22 @@ public class Deck : MonoBehaviour
 
     public bool CheckCardMatch(Card card) 
     {
+        //Checks if suits value
         if (card.GetValue() == GetPlayDeckTopCard().GetValue())
         {
             return true;
         }
+        //Checks is suits match
         else if (card.GetSuit() == GetPlayDeckTopCard().GetSuit())
         {
             return true;
         }
+        //Check if card is ace, as ace can be played on anything
         else if (card.GetValue() == 1)
         {
             return true;
         }
+        //If none, return false
         else
         {
             return false;
@@ -79,10 +87,8 @@ public class Deck : MonoBehaviour
     public void Start()
     {
         LoadDeck();
-        //PlayCard(DrawCard().GetCardId());
 
         PlayCard(DrawCard().GetCardId());
-        //PhotonNetwork.Instantiate("Cards/CardInstances/" + GetPlayDeckTopCard().name, transform.position, Quaternion.identity);
     }
 
     #region Deck handling

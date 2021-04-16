@@ -72,7 +72,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   imagePrefab: {fileID: 7375314748806015419, guid: 16597be7c7ce66f49b20c0182a90046c, type: 3}
   handStartPosition: {fileID: 0}
-  playerId: -1
 --- !u!114 &3081565277193815260
 MonoBehaviour:
   m_ObjectHideFlags: 0
