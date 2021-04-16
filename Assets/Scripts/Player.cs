@@ -9,6 +9,8 @@ public class Player : MonoBehaviour
 {
     Dictionary<short, Card> myCards = new Dictionary<short, Card>();
     Dictionary<short, Image> uiCards = new Dictionary<short, Image>();
+    List<short> cardsToPlay = new List<short>();
+
     [SerializeField] private Image imagePrefab;
     [SerializeField] GameObject handStartPosition;
 
@@ -61,8 +63,8 @@ public class Player : MonoBehaviour
         byte eventCode = photonEvent.Code;
         if(eventCode == PlayCardEventCode)
         {
-            short cardId = (short)photonEvent.CustomData;
-            deck.PlayCard(cardId);
+            short[] cards = (short[])photonEvent.CustomData;
+            deck.PlayCard(cards);
         }   
     }
 
@@ -71,13 +73,6 @@ public class Player : MonoBehaviour
     public void UpdateDrawDeckRpc()
     {
         deck.DrawCard();
-    }
-
-    //Simulates another player playing a card. Does not affect the local players hand
-    [PunRPC]
-    public void UpdatePlayDeckRpc()
-    {
-        deck.RenderCards();
     }
 
     public void UpdateCardUI()
@@ -132,13 +127,28 @@ public class Player : MonoBehaviour
         {
             if (view.IsMine)
             {
+                cardsToPlay.Add(38);
+                cardsToPlay.Add(25);
+                cardsToPlay.Add(12);
+
+                //Checks if the first card matches the deck ie: can be played
+                if (!deck.CheckCardMatch(cardsToPlay[0])) 
+                {
+                    //TODO 2 cards cause you should know better...
+                    Debug.Log("Invalid card");
+                    return; 
+                }
+
                 //Sends event to all players to replace the top card with cardId "content"
-                short content = 25;
+                short[] content = cardsToPlay.ToArray();
                 RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
                 PhotonNetwork.RaiseEvent(PlayCardEventCode, content, eventOptions, SendOptions.SendReliable);
 
                 //Removes the card from player hand and updates UI to match
-                myCards.Remove(content);
+                foreach (short cardId in cardsToPlay)
+                {
+                    myCards.Remove(cardId);
+                }
                 UpdateCardUI();
             }
         }

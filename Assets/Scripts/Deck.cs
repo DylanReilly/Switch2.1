@@ -30,23 +30,39 @@ public class Deck : MonoBehaviour
         return card;
     }
 
-    public void PlayCard(short cardId)
+    public void PlayCard(short[] cards)
     {
-        playDeck.Push(lookupDeck[cardId]);
-        RenderCards();
+        foreach(short cardId in cards)
+        {
+            playDeck.Push(lookupDeck[cardId]);   
+        }
+        RenderCards(cards);
     }
 
-    public void RenderCards()
+    public void RenderCards(short[] cards)
     {
         //If you are the host, destroy all cards on the network and add new card
         //Host does this to stop multiple copies of each card from being instantiated
         if (PhotonNetwork.IsMasterClient)
         {
-            if (GameObject.FindGameObjectWithTag("Card") != null)
+            //Delete cards until there are none left
+            if(GameObject.FindGameObjectWithTag("Card") != null)
             {
-                PhotonNetwork.Destroy(GameObject.FindGameObjectWithTag("Card"));
+                do
+                {
+                    PhotonNetwork.Destroy(GameObject.FindGameObjectWithTag("Card"));
+                }
+                while (GameObject.FindGameObjectWithTag("Card") != null);
             }
-            PhotonNetwork.Instantiate("Cards/CardInstances/" + lookupDeck[playDeck.Peek().GetCardId()].name, transform.position, Quaternion.identity);
+
+            float xOffset = 0.05f;
+            float yOffset = 0.001f;
+            foreach (short cardId in cards)
+            {
+                PhotonNetwork.Instantiate("Cards/CardInstances/" + lookupDeck[cardId].name, transform.position + new Vector3(xOffset, yOffset, 0), Quaternion.identity);
+                xOffset += 0.05f;
+                yOffset += 0.001f;
+            }
         }
     }
 
@@ -60,8 +76,9 @@ public class Deck : MonoBehaviour
         drawDeck.Push(card);
     }
 
-    public bool CheckCardMatch(Card card) 
+    public bool CheckCardMatch(short cardId) 
     {
+        Card card = lookupDeck[cardId];
         //Checks if suits value
         if (card.GetValue() == GetPlayDeckTopCard().GetValue())
         {
@@ -87,8 +104,9 @@ public class Deck : MonoBehaviour
     public void Start()
     {
         LoadDeck();
-
-        PlayCard(DrawCard().GetCardId());
+        short[] startCard = new short[1];
+        startCard[0] = DrawCard().GetCardId();
+        PlayCard(startCard);
     }
 
     #region Deck handling
