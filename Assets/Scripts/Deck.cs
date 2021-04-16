@@ -18,6 +18,7 @@ public class Deck : MonoBehaviour
         PlayCard(startCard);
     }
 
+    #region Playing/Drawing
     public Card GetDrawDeckTopCard()
     {
         return drawDeck.Peek();
@@ -40,13 +41,26 @@ public class Deck : MonoBehaviour
 
     public void PlayCard(short[] cards)
     {
-        foreach(short cardId in cards)
+        foreach (short cardId in cards)
         {
-            playDeck.Push(lookupDeck[cardId]);   
+            playDeck.Push(lookupDeck[cardId]);
         }
         RenderCards(cards);
     }
 
+    public void ReplaceCard(Card card)
+    {
+        drawDeck.Push(card);
+    }
+
+    public Card FindCard(short id)
+    {
+        return lookupDeck[id];
+    }
+
+    #endregion
+
+    #region 3D deck handling
     public void RenderCards(short[] cards)
     {
         //If you are the host, destroy all cards on the network and add new card
@@ -73,18 +87,22 @@ public class Deck : MonoBehaviour
             }
         }
     }
+    #endregion
 
-    public Card FindCard(short id)
+    #region Deck handling
+    //Flip the deck when there are no cards left to draw
+    private void FlipDeck()
     {
-        return lookupDeck[id];
+        Card topCard = playDeck.Pop();
+        foreach (Card card in playDeck)
+        {
+            drawDeck.Push(playDeck.Pop());
+        }
+        playDeck.Push(topCard);
     }
 
-    public void ReplaceCard(Card card)
-    {
-        drawDeck.Push(card);
-    }
-
-    public bool CheckCardMatch(short cardId) 
+    //Checks the card of cardId to see if it can be played on the deck
+    public bool CheckCardMatch(short cardId)
     {
         Card card = lookupDeck[cardId];
         //Checks if suits value
@@ -107,18 +125,6 @@ public class Deck : MonoBehaviour
         {
             return false;
         }
-    }
-
-    #region Deck handling
-    //Flip the deck when there are no cards left to draw
-    private void FlipDeck()
-    {
-        Card topCard = playDeck.Pop();
-        foreach (Card card in playDeck)
-        {
-            drawDeck.Push(playDeck.Pop());
-        }
-        playDeck.Push(topCard);
     }
 
     //Used to shuffle the deck

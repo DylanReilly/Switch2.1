@@ -9,6 +9,7 @@ public class UICardHandler : MonoBehaviour
     public bool isSelected = false;
     public static event Action<bool, short> cardSelected;
 
+    //Raise card whe hovering over the UI
     public void OnEnter()
     {
         Image image = gameObject.GetComponent<Image>();
@@ -18,6 +19,7 @@ public class UICardHandler : MonoBehaviour
         }
     }
 
+    //Drop card when not hovering
     public void OnExit()
     {
         Image image = gameObject.GetComponent<Image>();
@@ -27,6 +29,7 @@ public class UICardHandler : MonoBehaviour
         }
     }
 
+    //Permenantly raise card when clicked, pass event to player to select the card to play
     public void OnClick()
     {   
         Image image = gameObject.GetComponent<Image>();

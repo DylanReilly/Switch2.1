@@ -7,6 +7,7 @@ using ExitGames.Client.Photon;
 
 public class Player : MonoBehaviour
 {
+    #region Member Variables
     Dictionary<short, Card> myCards = new Dictionary<short, Card>();
     Dictionary<short, Image> uiCards = new Dictionary<short, Image>();
     [SerializeField]List<short> cardsToPlay = new List<short>();
@@ -20,7 +21,9 @@ public class Player : MonoBehaviour
     Canvas hud = null;
 
     public const byte PlayCardEventCode = 1;
+    #endregion
 
+    #region Start/Stop/Update
     private void Start()
     {
         mainCamera = Camera.main;
@@ -40,6 +43,34 @@ public class Player : MonoBehaviour
         PhotonNetwork.NetworkingClient.EventReceived -= PlayCard;
         UICardHandler.cardSelected -= ChangeCardsToPlay;
     }
+
+    private void Update()
+    {
+        if (Input.GetKeyUp(KeyCode.Space))
+        {
+            NetworkDrawCard();
+        }
+
+
+        if (Input.GetKeyUp(KeyCode.P))
+        {
+            if (view.IsMine)
+            {
+                //Checks if the first card matches the deck ie: can be played
+                if (!deck.CheckCardMatch(cardsToPlay[0]))
+                {
+                    //Draw two cards for a mistake
+                    CardMistake(2);
+                    Debug.Log("Invalid card");
+                    return;
+                }
+
+                NetworkPlayCard();
+                UpdateCardUI();
+            }
+        }
+    }
+    #endregion
 
     #region Card Handling
 
@@ -63,6 +94,7 @@ public class Player : MonoBehaviour
     }
 
     //Adds or removes cards from play hand when selected
+    //Also numbers cards based on the order they will be played
     public void ChangeCardsToPlay(bool isPickup, short cardId)
     {
         if (isPickup)
@@ -70,12 +102,18 @@ public class Player : MonoBehaviour
             cardsToPlay.Add(cardId);
         }
         else
-        {
+        {        
             cardsToPlay.Remove(cardId);
+            uiCards[cardId].GetComponentInChildren<Text>().text = null;
         }
+        foreach (short card in cardsToPlay)
+        {
+            uiCards[card].GetComponentInChildren<Text>().text = (cardsToPlay.IndexOf(card) + 1).ToString();
+        }
+
     }
 
-    
+    //Used for adding multiple cards for mistakes or tricks
     public void CardMistake(short numCards)
     {
         for (int i = 0; i < numCards; i++)
@@ -119,7 +157,6 @@ public class Player : MonoBehaviour
             view.RPC("UpdateDrawDeckRpc", RpcTarget.Others);
         }
     }
-
     #endregion
 
     #region UI
@@ -128,7 +165,7 @@ public class Player : MonoBehaviour
     {
         int offset = 0;
 
-        //Destroys all cards to accomidate cards being removed
+        //Destroys all cards to accomodate cards being removed
         var cardList = GameObject.FindGameObjectsWithTag("UICard");
         foreach (GameObject uiCard in cardList)
         {
@@ -152,39 +189,5 @@ public class Player : MonoBehaviour
             offset += 50;
         }
     }
-
-    public void SelectCard(short id)
-    {
-        uiCards[id].rectTransform.anchoredPosition += new Vector2(uiCards[id].rectTransform.anchoredPosition.x, uiCards[id].rectTransform.anchoredPosition.y + 20);
-    }
-
     #endregion
-
-    private void Update()
-    {
-        if (Input.GetKeyUp(KeyCode.Space))
-        {
-            NetworkDrawCard();
-        }
-
-
-        if (Input.GetKeyUp(KeyCode.P))
-        {
-            if (view.IsMine)
-            {
-
-                //Checks if the first card matches the deck ie: can be played
-                if (!deck.CheckCardMatch(cardsToPlay[0])) 
-                {
-                    //Draw two cards for a mistake
-                    CardMistake(2);
-                    Debug.Log("Invalid card");
-                    return; 
-                }
-
-                NetworkPlayCard();
-                UpdateCardUI();
-            }
-        }
-    }
 }
