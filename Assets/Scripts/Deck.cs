@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 using System;
+using ExitGames.Client.Photon;
 
 public class Deck : MonoBehaviour
 {
@@ -56,6 +57,12 @@ public class Deck : MonoBehaviour
     public Card FindCard(short id)
     {
         return lookupDeck[id];
+    }
+
+    //Deals 5 card sto every player when the game starts
+    public void GameStartDeal()
+    { 
+        
     }
 
     #endregion
