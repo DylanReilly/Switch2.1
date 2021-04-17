@@ -51,7 +51,6 @@ public class Player : MonoBehaviour
             NetworkDrawCard();
         }
 
-
         if (Input.GetKeyUp(KeyCode.P))
         {
             if (view.IsMine)
@@ -61,6 +60,7 @@ public class Player : MonoBehaviour
                 {
                     //Draw two cards for a mistake
                     CardMistake(2);
+                    cardsToPlay.Clear();
                     Debug.Log("Invalid card");
                     return;
                 }
@@ -97,20 +97,22 @@ public class Player : MonoBehaviour
     //Also numbers cards based on the order they will be played
     public void ChangeCardsToPlay(bool isPickup, short cardId)
     {
-        if (isPickup)
+        if (view.IsMine)
         {
-            cardsToPlay.Add(cardId);
+            if (isPickup)
+            {
+                cardsToPlay.Add(cardId);
+            }
+            else
+            {
+                cardsToPlay.Remove(cardId);
+                uiCards[cardId].GetComponentInChildren<Text>().text = null;
+            }
+            foreach (short card in cardsToPlay)
+            {
+                uiCards[card].GetComponentInChildren<Text>().text = (cardsToPlay.IndexOf(card) + 1).ToString();
+            }
         }
-        else
-        {        
-            cardsToPlay.Remove(cardId);
-            uiCards[cardId].GetComponentInChildren<Text>().text = null;
-        }
-        foreach (short card in cardsToPlay)
-        {
-            uiCards[card].GetComponentInChildren<Text>().text = (cardsToPlay.IndexOf(card) + 1).ToString();
-        }
-
     }
 
     //Used for adding multiple cards for mistakes or tricks
@@ -146,6 +148,7 @@ public class Player : MonoBehaviour
         }
         cardsToPlay.Clear();
     }
+
     private void NetworkDrawCard()
     {
         if (view.IsMine)
