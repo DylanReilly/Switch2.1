@@ -8,18 +8,25 @@ using ExitGames.Client.Photon;
 public class Player : MonoBehaviour
 {
     #region Member Variables
+    //Containers
     Dictionary<short, Card> myCards = new Dictionary<short, Card>();
     Dictionary<short, Image> uiCards = new Dictionary<short, Image>();
-    [SerializeField]List<short> cardsToPlay = new List<short>();
+    List<short> cardsToPlay = new List<short>();
 
-    [SerializeField] private Image imagePrefab;
-    [SerializeField] GameObject handStartPosition;
+    //UI References
+    [SerializeField] private Image imagePrefab = null;
+    GameObject handStartPosition = null;
+    Button drawCardsButton = null;
+    Button playCardsButton = null;
+    Image topCardImage = null;
+    Canvas hud = null;
 
+    //Game objects
     Deck deck = null;
     PhotonView view = null;
     Camera mainCamera = null;
-    Canvas hud = null;
 
+    //Event Codes
     public const byte PlayCardEventCode = 1;
     #endregion
 
@@ -30,7 +37,15 @@ public class Player : MonoBehaviour
         view = GetComponent<PhotonView>();
         hud = GameObject.FindWithTag("Hud").GetComponent<Canvas>();
         deck = GameObject.FindWithTag("Deck").GetComponent<Deck>();
+
+        //Sets all UI element references
         handStartPosition = hud.transform.Find("HandStartPosition").gameObject;
+        drawCardsButton = hud.transform.Find("DrawCardsButton").GetComponent<Button>();
+        playCardsButton = hud.transform.Find("PlayCardsButton").GetComponent<Button>();
+        topCardImage = hud.transform.Find("TopCardImage").GetComponent<Image>();
+
+        drawCardsButton.onClick.AddListener(NetworkDrawCard);
+        playCardsButton.onClick.AddListener(TryPlayCard);
 
         //Subscribe to event
         PhotonNetwork.NetworkingClient.EventReceived += PlayCard;
@@ -42,33 +57,6 @@ public class Player : MonoBehaviour
         //Unsubscribe from event
         PhotonNetwork.NetworkingClient.EventReceived -= PlayCard;
         UICardHandler.cardSelected -= ChangeCardsToPlay;
-    }
-
-    private void Update()
-    {
-        if (Input.GetKeyUp(KeyCode.Space))
-        {
-            NetworkDrawCard();
-        }
-
-        if (Input.GetKeyUp(KeyCode.P))
-        {
-            if (view.IsMine)
-            {
-                //Checks if the first card matches the deck ie: can be played
-                if (!deck.CheckCardMatch(cardsToPlay[0]))
-                {
-                    //Draw two cards for a mistake
-                    CardMistake(2);
-                    cardsToPlay.Clear();
-                    Debug.Log("Invalid card");
-                    return;
-                }
-
-                NetworkPlayCard();
-                UpdateCardUI();
-            }
-        }
     }
     #endregion
 
@@ -90,6 +78,7 @@ public class Player : MonoBehaviour
         {
             short[] cards = (short[])photonEvent.CustomData;
             deck.PlayCard(cards);
+            topCardImage.sprite = deck.GetPlayDeckTopCard().GetCardSprite();
         }
     }
 
@@ -123,6 +112,26 @@ public class Player : MonoBehaviour
             NetworkDrawCard();
         }
     }
+
+    //Checks if the cards are valid to play, if true plays card on the network
+    public void TryPlayCard()
+    {
+        if (view.IsMine)
+        {
+            //Checks if the first card matches the deck ie: can be played
+            if (!deck.CheckCardMatch(cardsToPlay[0]))
+            {
+                //Draw two cards for a mistake
+                CardMistake(2);
+                cardsToPlay.Clear();
+                Debug.Log("Invalid card");
+                return;
+            }
+
+            NetworkPlayCards();
+            UpdateCardUI();
+        }
+    }
     #endregion
 
     #region Networking
@@ -135,7 +144,7 @@ public class Player : MonoBehaviour
     }
 
     //Sends event to all players to replace the top card with cardId "content"
-    private void NetworkPlayCard()
+    private void NetworkPlayCards()
     {
         short[] content = cardsToPlay.ToArray();
         RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
