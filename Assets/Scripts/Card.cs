@@ -5,7 +5,7 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Card : MonoBehaviour
+public class Card : MonoBehaviour, IComparer
 {
     [SerializeField] private short value;
     [SerializeField] private int suit;
@@ -64,6 +64,14 @@ public class Card : MonoBehaviour
     public void Start()
     {
         deck = GameObject.FindWithTag("Deck").GetComponent<Deck>();
+    }
+
+    int IComparer.Compare(object x, object y)
+    {
+        Card current = (Card)x;
+        Card other = (Card)y;
+
+        return current.value.CompareTo(other.value);
     }
 
     #region Serialization

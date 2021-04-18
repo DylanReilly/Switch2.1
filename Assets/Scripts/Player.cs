@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using Photon.Realtime;
 using Photon.Pun;
 using ExitGames.Client.Photon;
+using System.Linq;
 
 public class Player : MonoBehaviour
 {
@@ -20,6 +21,7 @@ public class Player : MonoBehaviour
     Button drawCardsButton = null;
     Button playCardsButton = null;
     Button gameStartButton = null;
+    Button sortCardsButton = null;
     Image topCardImage = null;
     Canvas hud = null;
 
@@ -48,6 +50,7 @@ public class Player : MonoBehaviour
         handStartPosition = hud.transform.Find("HandStartPosition").gameObject;
         drawCardsButton = hud.transform.Find("DrawCardsButton").GetComponent<Button>();
         playCardsButton = hud.transform.Find("PlayCardsButton").GetComponent<Button>();
+        sortCardsButton = hud.transform.Find("SortCardsButton").GetComponent<Button>();
         topCardImage = hud.transform.Find("TopCardImage").GetComponent<Image>();
 
         if (PhotonNetwork.IsMasterClient)
@@ -65,6 +68,7 @@ public class Player : MonoBehaviour
         //Adds method calls to UI buttons
         drawCardsButton.onClick.AddListener(NetworkDrawCard);
         playCardsButton.onClick.AddListener(TryPlayCard);
+        sortCardsButton.onClick.AddListener(SortHand);
         
 
         //Subscribe to event
@@ -109,6 +113,7 @@ public class Player : MonoBehaviour
             {
                 drawCardsButton.interactable = true;
                 playCardsButton.interactable = true;
+                sortCardsButton.interactable = true;
                 gameStartButton.gameObject.SetActive(false);
             }
         }
@@ -285,6 +290,25 @@ public class Player : MonoBehaviour
             //Offset moves cards over so they aren't rendered on top of each other
             offset += 50;
         }
+    }
+
+    public void SortHand()
+    {
+        List<KeyValuePair<short, Card>> myList = myCards.ToList();
+
+        myList.Sort(
+            delegate (KeyValuePair<short, Card> pair1, KeyValuePair<short, Card> pair2)
+            {
+                return pair1.Value.GetValue().CompareTo(pair2.Value.GetValue());
+            }
+        );
+
+        myCards.Clear();
+        foreach (KeyValuePair<short, Card> card in myList)
+        {
+            myCards.Add(card.Key, card.Value);
+        }
+        UpdateCardUI();
     }
     #endregion
 }
