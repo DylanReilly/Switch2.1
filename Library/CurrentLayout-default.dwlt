@@ -21,7 +21,7 @@ MonoBehaviour:
   m_ShowMode: 4
   m_Title: Game
   m_RootView: {fileID: 2}
-  m_MinSize: {x: 875, y: 300}
+  m_MinSize: {x: 875, y: 542}
   m_MaxSize: {x: 10000, y: 10000}
   m_Maximized: 1
 --- !u!114 &2
@@ -119,10 +119,10 @@ MonoBehaviour:
     y: 30
     width: 2560
     height: 1307
-  m_MinSize: {x: 679, y: 342}
-  m_MaxSize: {x: 12004, y: 8042}
+  m_MinSize: {x: 679, y: 492}
+  m_MaxSize: {x: 14002, y: 14042}
   vertical: 0
-  controlID: 51
+  controlID: 77
 --- !u!114 &6
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -144,10 +144,10 @@ MonoBehaviour:
     y: 0
     width: 2007
     height: 1307
-  m_MinSize: {x: 403, y: 342}
-  m_MaxSize: {x: 8003, y: 8042}
+  m_MinSize: {x: 403, y: 492}
+  m_MaxSize: {x: 10001, y: 14042}
   vertical: 1
-  controlID: 52
+  controlID: 78
 --- !u!114 &7
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -172,7 +172,7 @@ MonoBehaviour:
   m_MinSize: {x: 403, y: 221}
   m_MaxSize: {x: 8003, y: 4021}
   vertical: 0
-  controlID: 26
+  controlID: 79
 --- !u!114 &8
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -236,7 +236,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 1
   m_Script: {fileID: 12006, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: ConsoleWindow
+  m_Name: ProjectBrowser
   m_EditorClassIdentifier: 
   m_Children: []
   m_Position:
@@ -245,14 +245,14 @@ MonoBehaviour:
     y: 914
     width: 2007
     height: 393
-  m_MinSize: {x: 101, y: 121}
-  m_MaxSize: {x: 4001, y: 4021}
-  m_ActualView: {fileID: 16}
+  m_MinSize: {x: 231, y: 271}
+  m_MaxSize: {x: 10001, y: 10021}
+  m_ActualView: {fileID: 15}
   m_Panes:
   - {fileID: 15}
   - {fileID: 16}
-  m_Selected: 1
-  m_LastSelected: 0
+  m_Selected: 0
+  m_LastSelected: 1
 --- !u!114 &11
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -399,7 +399,7 @@ MonoBehaviour:
       scrollPos: {x: 0, y: 0}
       m_SelectedIDs: 
       m_LastClickedID: 0
-      m_ExpandedIDs: 002dfcff7c2dfcff1030fcff2830fcff2c30fcff6e41fcff9243fcff0e44fcffa246fcffba46fcffbe46fcffac4afcffd84ffcff8052fcff7a54fcfff654fcff8657fcff9e57fcffa257fcff3c5afcff465cfcffc25cfcff565ffcff6e5ffcff725ffcff0c67fcff8867fcff1c6afcff346afcff386afcffaa77fcff2678fcffba7afcffd27afcffd67afcff8e7cfcff987efcff147ffcffa881fcffc081fcffc481fcff048bfcff808bfcff148efcff2c8efcff308efcffcc93fcff4894fcffdc96fcfff496fcfff896fcff6e9cfcffea9cfcff7e9ffcff969ffcff9a9ffcff98a8fcff14a9fcffa8abfcffc0abfcffc4abfcff6eb0fcffeab0fcff7eb3fcff96b3fcff9ab3fcffe4b9fcff60bafcfff4bcfcff0cbdfcff10bdfcff94c4fcffbacafcffccccfcff48cdfcffdccffcfff4cffcfff8cffcffb6dbfcffd2ddfcff4edefcffe2e0fcfffae0fcfffee0fcff304afdffb458fdff3059fdffc45bfdffdc5bfdffe05bfdff9667fdff1268fdffa66afdffbe6afdffc26afdffa06ffdff1c70fdffb072fdffc872fdffcc72fdff7681fdfff281fdff7e84fdff9684fdff9a84fdffeab0fdff3eb5fdffbcb5fdffc0cafdff3ccbfdffd0cdfdffe8cdfdffeccdfdfff441feff7042feff0445feff1c45feff2045feff4e5afeffca5afeff625dfeff7e5dfeff865dfeffbad8feff6aecfeffd0edfeff4ceefeffe0f0fefff4f0fefff8f0feff84f7feff00f8feff94fafeffacfafeffb0fafeff481dffffc41dffff4620ffff5e20ffff6220ffff022bffff7e2bffff002effff182effff1c2effff6837ffffe437ffff663affff7e3affff823afffffa76ffff7677ffffe679fffffe79ffff027affff1a88ffff9688fffffe8affff168bffff1a8bfffff2a8ffff10c5ffff1cc5ffff66c9ffff32caffff3ae9ffff46e9ffff0cebffff88ebffffc4edffffdcedffffe0edfffffaefffff76f0ffffb2f2ffffcaf2ffffcef2ffffd4f5ffff50f6ffff90f8ffffacf8ffffb4f8ffff52fbfffff4ffffff
+      m_ExpandedIDs: a229ffff1e2affffb22cffffca2cffffce2cffff8235fffffe35ffff9238ffffaa38ffffae38ffff003cffff3c43ffffb843ffff4c46ffff6446ffff6846ffff0872ffff8472ffff1875ffff3075ffff3475ffffe479ffffe67bffff627cfffff67effff0e7fffff127fffffba83ffffc485ffff4086ffffd488ffffec88fffff088ffff6697ffff76a0ffff92a2ffff0ea3ffffa2a5ffffbaa5ffffbea5ffff64aaffff7eacfffffaacffff8eafffffa6afffffaaafffff54b1ffff32b9ffff3ebbffffbabbffff4ebeffff66beffff6abeffff20c6ffff2cc8ffffa8c8ffff3ccbffff54cbffff58cbfffffacfffff76d0ffff0ad3ffff22d3ffff26d3ffff7ae6ffff86e8ffff02e9ffff96ebffffaeebffffb2ebffffd2eeffffe6f0ffff62f1fffff6f3ffff0ef4ffff12f4ffff10f7ffff52fbfffff4ffffff
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -577,21 +577,21 @@ MonoBehaviour:
     m_SkipHidden: 1
     m_SearchArea: 1
     m_Folders:
-    - Assets/Scenes
+    - Assets/PlayingCards/Textures
     m_Globs: []
   m_ViewMode: 1
   m_StartGridSize: 16
   m_LastFolders:
-  - Assets/Scenes
+  - Assets/PlayingCards/Textures
   m_LastFoldersGridSize: 16
   m_LastProjectPath: D:\UnityPractice\Switch 2.1
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: d2480000
-    m_LastClickedID: 18642
-    m_ExpandedIDs: 000000008a4800008c4800008e48000090480000924800009448000096480000984800009a4800009c4800009e480000a0480000ca480000d04800007461000000ca9a3b
+    m_SelectedIDs: 6c940000
+    m_LastClickedID: 37996
+    m_ExpandedIDs: 000000008e48000090480000924800009448000096480000984800009a4800009c4800009e480000a0480000a2480000a4480000fe4a000000ca9a3b
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -619,7 +619,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 000000008a4800008c4800008e48000090480000924800009448000096480000984800009a4800009c4800009e480000a0480000
+    m_ExpandedIDs: 000000008e48000090480000924800009448000096480000984800009a4800009c4800009e480000a0480000a2480000a4480000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -644,10 +644,10 @@ MonoBehaviour:
       m_Icon: {fileID: 0}
       m_ResourceFile: 
   m_ListAreaState:
-    m_SelectedInstanceIDs: a65f0000
-    m_LastClickedInstanceID: 24486
+    m_SelectedInstanceIDs: 
+    m_LastClickedInstanceID: 0
     m_HadKeyboardFocusLastEvent: 1
-    m_ExpandedInstanceIDs: c62300000e53000042510000644f0000ea4b0000cc4c00009e4b0000000000008e4b0000
+    m_ExpandedInstanceIDs: c62300000e53000042510000644f0000ea4b0000cc4c00009e4b0000000000008e4b0000c44c0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -671,7 +671,7 @@ MonoBehaviour:
       m_Icon: {fileID: 0}
       m_ResourceFile: 
     m_NewAssetIndexInList: -1
-    m_ScrollPosition: {x: 0, y: 0}
+    m_ScrollPosition: {x: 0, y: 683}
     m_GridSize: 16
   m_SkipHiddenPackages: 1
   m_DirectoriesAreaWidth: 207

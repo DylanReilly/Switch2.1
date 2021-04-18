@@ -69,7 +69,6 @@
     <Compile Include="Assets\Scripts\SpawnPoint.cs" />
     <Compile Include="Assets\Scripts\PhotonRegister.cs" />
     <Compile Include="Assets\Photon\PhotonLibs\WebSocket\WebSocket.cs" />
-    <Compile Include="Assets\Scripts\CardDealer.cs" />
   </ItemGroup>
   <ItemGroup>
      <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

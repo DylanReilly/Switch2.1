@@ -12,6 +12,7 @@ public class Player : MonoBehaviour
     Dictionary<short, Card> myCards = new Dictionary<short, Card>();
     Dictionary<short, Image> uiCards = new Dictionary<short, Image>();
     [SerializeField] List<short> cardsToPlay = new List<short>();
+    [SerializeField] Stack<Player> players = new Stack<Player>();
 
     //UI References
     [SerializeField] private Image imagePrefab = null;
@@ -31,6 +32,7 @@ public class Player : MonoBehaviour
     public const byte PlayCardEventCode = 1;
     public const byte GameStartEventCode = 2;
     public const byte DrawCardEventCode = 3;
+    public const byte DrawStartCardsEventCode = 4;
     #endregion
 
     #region Start/Stop/Update
@@ -110,6 +112,21 @@ public class Player : MonoBehaviour
                 gameStartButton.gameObject.SetActive(false);
             }
         }
+
+        else if(photonEvent.Code == DrawStartCardsEventCode)
+        {
+            int eventViewID = (int)photonEvent.CustomData;
+
+            if (eventViewID == view.ViewID)
+            {
+                DrawMultipleCards(5);
+            }
+
+            if (PhotonNetwork.IsMasterClient && view.IsMine)
+            {
+                DealStartCards();
+            }
+        }
     }
 
     //Adds or removes cards from play hand when selected
@@ -134,12 +151,15 @@ public class Player : MonoBehaviour
         }
     }
 
-    //Used for adding multiple cards for mistakes or tricks
-    public void CardMistake(short numCards)
+    //Used for adding multiple cards for mistakes, tricks or deals
+    public void DrawMultipleCards(short numCards)
     {
-        for (int i = 0; i < numCards; i++)
+        if (view.IsMine)
         {
-            NetworkDrawCard();
+            for (int i = 0; i < numCards; i++)
+            {
+                NetworkDrawCard();
+            }
         }
     }
 
@@ -152,9 +172,8 @@ public class Player : MonoBehaviour
             if (!deck.CheckCardMatch(cardsToPlay[0]))
             {
                 //Draw two cards for a mistake
-                CardMistake(2);
+                DrawMultipleCards(2);
                 cardsToPlay.Clear();
-                Debug.Log("Invalid card");
                 return;
             }
 
@@ -183,6 +202,7 @@ public class Player : MonoBehaviour
         }
     }
 
+    //Picks up a card and alerts other players that the deck has been modified
     private void NetworkDrawCard()
     {
         if (view.IsMine)
@@ -197,20 +217,41 @@ public class Player : MonoBehaviour
         }
     }
 
+    //Enables all players UI, plays the first card on the deck and deals 5 cards to everyone
     public void HostGameStart()
     {
-        if (PhotonNetwork.IsMasterClient)
+        if (PhotonNetwork.IsMasterClient && view.IsMine)
         {
+            
             byte dummy = 0;
             RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
             PhotonNetwork.RaiseEvent(GameStartEventCode, dummy, eventOptions, SendOptions.SendReliable);
 
+            //Used to play the very first card of the game
             NetworkDrawCard();
             foreach (KeyValuePair<short, Card> card in myCards)
             {
                 cardsToPlay.Add(card.Key);
             }
             NetworkPlayCards();
+
+            foreach (Player player in FindObjectsOfType<Player>())
+            {
+                players.Push(player);
+            }
+            DealStartCards();
+        }
+    }
+
+    //Deals 5 cards to every player in the game on game start.
+    //Works recursively with HandlePhotonEvents to ensure players take their cards in order
+    public void DealStartCards()
+    {
+        if (PhotonNetwork.IsMasterClient && view.IsMine && players.Count != 0)
+        {
+            int content = players.Pop().GetComponent<PhotonView>().ViewID;
+            RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
+            PhotonNetwork.RaiseEvent(DrawStartCardsEventCode, content, eventOptions, SendOptions.SendReliable);
         }
     }
     #endregion

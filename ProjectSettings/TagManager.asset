@@ -9,6 +9,7 @@ TagManager:
   - LocalPlayer
   - Hud
   - UICard
+  - CardDealer
   layers:
   - Default
   - TransparentFX
