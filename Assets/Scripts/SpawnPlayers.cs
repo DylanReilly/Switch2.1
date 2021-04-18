@@ -8,31 +8,33 @@ public class SpawnPlayers : MonoBehaviour
 {
     public GameObject player;
     public List<SpawnPoint> spawnPoints = new List<SpawnPoint>();
-    PhotonView view;
+    public Player[] playerList;
 
     private void Start()
     {
-        view = GetComponent<PhotonView>();
-        Transform spawnPoint = null;
-
-        //Loops through spawn points to find unused spawn
-        //foreach (SpawnPoint location in spawnPoints)
-        //{
-        //    if (location.GetIsUsed() == false)
-        //    {
-        //        spawnPoint = location.transform;
-        //        view.RPC("UseSpawnPointRPC", RpcTarget.All, location);
-        //        break;
-        //    }
-        //}
-        spawnPoint = spawnPoints[Random.Range(0, 4)].transform;
-        
-        PhotonNetwork.Instantiate(player.name, spawnPoint.position, Quaternion.identity);
+        playerList = FindObjectsOfType<Player>();
+        Debug.Log(playerList.Length);
     }
 
-    [PunRPC]
-    void UseSpawnPointRPC(SpawnPoint spawnPoint)
+    public void SelectSpawnPoint(int point)
     {
-        spawnPoints.Remove(spawnPoint);
+        bool canSpawn = true;
+
+        foreach (Player player in playerList)
+        {
+            Debug.Log("Working");
+            if (spawnPoints[point - 1].transform.position == player.transform.position)
+            {
+                Debug.Log("Point used");
+                canSpawn = false;
+                break;
+            }
+        }
+
+        if (canSpawn)
+        {
+            PhotonNetwork.Instantiate(player.name, spawnPoints[point - 1].transform.position, Quaternion.identity);
+            gameObject.SetActive(false);
+        }
     }
 }
