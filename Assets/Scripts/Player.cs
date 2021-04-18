@@ -85,9 +85,12 @@ public class Player : MonoBehaviour
         byte eventCode = photonEvent.Code;
         if (eventCode == PlayCardEventCode)
         {
-            short[] cards = (short[])photonEvent.CustomData;
-            deck.PlayCard(cards);
-            topCardImage.sprite = deck.GetPlayDeckTopCard().GetCardSprite();
+            if (view.IsMine)
+            {
+                short[] cards = (short[])photonEvent.CustomData;
+                deck.PlayCard(cards);
+                topCardImage.sprite = deck.GetPlayDeckTopCard().GetCardSprite();
+            }
         }
 
         else if (eventCode == DrawCardEventCode)
@@ -156,7 +159,6 @@ public class Player : MonoBehaviour
             }
 
             NetworkPlayCards();
-            UpdateCardUI();
         }
     }
     #endregion
@@ -177,6 +179,7 @@ public class Player : MonoBehaviour
                 myCards.Remove(cardId);
             }
             cardsToPlay.Clear();
+            UpdateCardUI();
         }
     }
 
@@ -201,6 +204,13 @@ public class Player : MonoBehaviour
             byte dummy = 0;
             RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
             PhotonNetwork.RaiseEvent(GameStartEventCode, dummy, eventOptions, SendOptions.SendReliable);
+
+            NetworkDrawCard();
+            foreach (KeyValuePair<short, Card> card in myCards)
+            {
+                cardsToPlay.Add(card.Key);
+            }
+            NetworkPlayCards();
         }
     }
     #endregion

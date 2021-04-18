@@ -9,20 +9,25 @@ public class Deck : MonoBehaviour
 {
     private Stack<Card> drawDeck = new Stack<Card>();
     private Stack<Card> playDeck = new Stack<Card>();
-    [SerializeField]public List<Card> tempCards = new List<Card>();
+    [SerializeField]List<Card> tempDraw = new List<Card>();
+    [SerializeField] List<Card> tempPlay = new List<Card>();
     private Dictionary<short, Card> lookupDeck = new Dictionary<short, Card>();
-    PhotonView view = null;
 
     public void Start()
     {
         LoadDeck();
-        short[] startCard = new short[1];
-        startCard[0] = DrawCard().GetCardId();
-        PlayCard(startCard);
-        view = GetComponent<PhotonView>();
     }
 
     #region Playing/Drawing
+
+    //Used to play the very first card at the beginning of the game. Called by host on game start
+    public void PlayFirstCard()
+    {
+        short[] startCard = new short[1];
+        startCard[0] = DrawCard().GetCardId();
+        PlayCard(startCard);
+    }
+
     public Card GetDrawDeckTopCard()
     {
         return drawDeck.Peek();
@@ -36,7 +41,7 @@ public class Deck : MonoBehaviour
     public Card DrawCard()
     {
         Card card = drawDeck.Pop();
-        tempCards.Remove(card);
+        tempDraw.Remove(card);
         return card;
     }
 
@@ -45,6 +50,7 @@ public class Deck : MonoBehaviour
         foreach (short cardId in cards)
         {
             playDeck.Push(lookupDeck[cardId]);
+            tempPlay.Add(lookupDeck[cardId]);
         }
         RenderCards(cards);
     }
@@ -75,17 +81,18 @@ public class Deck : MonoBehaviour
         if (PhotonNetwork.IsMasterClient)
         {
             //Delete cards until there are none left
-            if(GameObject.FindGameObjectWithTag("Card") != null)
+            if(playDeck.Count > 1)
             {
                 do
                 {
+                    Debug.Log("Card destroyed");
                     PhotonNetwork.Destroy(GameObject.FindGameObjectWithTag("Card"));
                 }
                 while (GameObject.FindGameObjectWithTag("Card") != null);
             }
 
-            float xOffset = 0.05f;
-            float yOffset = 0.001f;
+            float xOffset = 0.0f;
+            float yOffset = 0.0f;
             foreach (short cardId in cards)
             {
                 PhotonNetwork.Instantiate("Cards/CardInstances/" + lookupDeck[cardId].name, transform.position + new Vector3(xOffset, yOffset, 0), Quaternion.identity);
@@ -166,7 +173,7 @@ public class Deck : MonoBehaviour
             //Generic list of type Card
             drawDeck.Push(card);
             lookupDeck.Add(card.GetCardId(), card);
-            tempCards.Add(card);
+            tempDraw.Add(card);
         }
     }
     #endregion
