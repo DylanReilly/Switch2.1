@@ -42,6 +42,12 @@ public class Deck : MonoBehaviour
     {
         Card card = drawDeck.Pop();
         tempDraw.Remove(card);
+
+        if (drawDeck.Count == 0)
+        {
+            FlipDeck();
+        }
+
         return card;
     }
 
@@ -63,12 +69,6 @@ public class Deck : MonoBehaviour
     public Card FindCard(short id)
     {
         return lookupDeck[id];
-    }
-
-    //Deals 5 card sto every player when the game starts
-    public void GameStartDeal()
-    { 
-        
     }
 
     #endregion
@@ -107,11 +107,18 @@ public class Deck : MonoBehaviour
     private void FlipDeck()
     {
         Card topCard = playDeck.Pop();
-        foreach (Card card in playDeck)
+        tempPlay.Remove(topCard);
+
+        while (playDeck.Count > 0)
         {
-            drawDeck.Push(playDeck.Pop());
+            Card card = playDeck.Pop();
+            tempPlay.Remove(card);
+            drawDeck.Push(card);
+            tempDraw.Add(card);
         }
+        
         playDeck.Push(topCard);
+        tempPlay.Add(topCard);
     }
 
     //Checks the card of cardId to see if it can be played on the deck
