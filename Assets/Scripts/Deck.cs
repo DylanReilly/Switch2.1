@@ -9,7 +9,9 @@ public class Deck : MonoBehaviour
 {
     private Stack<Card> drawDeck = new Stack<Card>();
     private Stack<Card> playDeck = new Stack<Card>();
+    [SerializeField]public List<Card> tempCards = new List<Card>();
     private Dictionary<short, Card> lookupDeck = new Dictionary<short, Card>();
+    PhotonView view = null;
 
     public void Start()
     {
@@ -17,6 +19,7 @@ public class Deck : MonoBehaviour
         short[] startCard = new short[1];
         startCard[0] = DrawCard().GetCardId();
         PlayCard(startCard);
+        view = GetComponent<PhotonView>();
     }
 
     #region Playing/Drawing
@@ -33,10 +36,7 @@ public class Deck : MonoBehaviour
     public Card DrawCard()
     {
         Card card = drawDeck.Pop();
-        if (drawDeck.Count == 0)
-        {
-            FlipDeck();
-        }
+        tempCards.Remove(card);
         return card;
     }
 
@@ -166,6 +166,7 @@ public class Deck : MonoBehaviour
             //Generic list of type Card
             drawDeck.Push(card);
             lookupDeck.Add(card.GetCardId(), card);
+            tempCards.Add(card);
         }
     }
     #endregion

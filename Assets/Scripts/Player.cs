@@ -11,7 +11,7 @@ public class Player : MonoBehaviour
     //Containers
     Dictionary<short, Card> myCards = new Dictionary<short, Card>();
     Dictionary<short, Image> uiCards = new Dictionary<short, Image>();
-    List<short> cardsToPlay = new List<short>();
+    [SerializeField] List<short> cardsToPlay = new List<short>();
 
     //UI References
     [SerializeField] private Image imagePrefab = null;
@@ -30,6 +30,7 @@ public class Player : MonoBehaviour
     //Event Codes
     public const byte PlayCardEventCode = 1;
     public const byte GameStartEventCode = 2;
+    public const byte DrawCardEventCode = 3;
     #endregion
 
     #region Start/Stop/Update
@@ -46,6 +47,7 @@ public class Player : MonoBehaviour
         drawCardsButton = hud.transform.Find("DrawCardsButton").GetComponent<Button>();
         playCardsButton = hud.transform.Find("PlayCardsButton").GetComponent<Button>();
         topCardImage = hud.transform.Find("TopCardImage").GetComponent<Image>();
+
         if (PhotonNetwork.IsMasterClient)
         {
             gameStartButton = hud.transform.Find("GameStartButton").GetComponent<Button>();
@@ -64,32 +66,21 @@ public class Player : MonoBehaviour
         
 
         //Subscribe to event
-        PhotonNetwork.NetworkingClient.EventReceived += PlayCard;
-        PhotonNetwork.NetworkingClient.EventReceived += ClientStartGame;
+        PhotonNetwork.NetworkingClient.EventReceived += HandlePhotonEvents;
         UICardHandler.cardSelected += ChangeCardsToPlay;
     }
 
     private void OnDestroy()
     {
         //Unsubscribe from event
-        PhotonNetwork.NetworkingClient.EventReceived -= PlayCard;
-        PhotonNetwork.NetworkingClient.EventReceived -= ClientStartGame;
+        PhotonNetwork.NetworkingClient.EventReceived -= HandlePhotonEvents;
         UICardHandler.cardSelected -= ChangeCardsToPlay;
     }
     #endregion
 
     #region Card Handling
-
-    //Takes a card from the drawdeck and adds it to the players hand
-    public void DrawCard()
-    {
-        Card card = deck.DrawCard();
-        myCards.Add(card.GetCardId(), card);
-        UpdateCardUI();
-    }
-
     //Recives event to play card, updating deck on all clients
-    public void PlayCard(EventData photonEvent)
+    public void HandlePhotonEvents(EventData photonEvent)
     {
         byte eventCode = photonEvent.Code;
         if (eventCode == PlayCardEventCode)
@@ -97,6 +88,24 @@ public class Player : MonoBehaviour
             short[] cards = (short[])photonEvent.CustomData;
             deck.PlayCard(cards);
             topCardImage.sprite = deck.GetPlayDeckTopCard().GetCardSprite();
+        }
+
+        else if (eventCode == DrawCardEventCode)
+        {
+            if (view.IsMine)
+            {
+                Card card = deck.DrawCard();
+            }
+        }
+
+        else if (photonEvent.Code == GameStartEventCode)
+        {
+            if (view.IsMine)
+            {
+                drawCardsButton.interactable = true;
+                playCardsButton.interactable = true;
+                gameStartButton.gameObject.SetActive(false);
+            }
         }
     }
 
@@ -153,14 +162,6 @@ public class Player : MonoBehaviour
     #endregion
 
     #region Networking
-
-    //Simulates another player drawing a card. Does not add the card to the players hand
-    [PunRPC]
-    public void UpdateDrawDeckRpc()
-    {
-        deck.DrawCard();
-    }
-
     //Sends event to all players to replace the top card with cardId "content"
     private void NetworkPlayCards()
     {
@@ -168,25 +169,28 @@ public class Player : MonoBehaviour
         RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
         PhotonNetwork.RaiseEvent(PlayCardEventCode, content, eventOptions, SendOptions.SendReliable);
 
-        //Removes the card from player hand and updates UI to match
-        foreach (short cardId in cardsToPlay)
+        if (view.IsMine)
         {
-            myCards.Remove(cardId);
+            //Removes the card from player hand and updates UI to match
+            foreach (short cardId in cardsToPlay)
+            {
+                myCards.Remove(cardId);
+            }
+            cardsToPlay.Clear();
         }
-        cardsToPlay.Clear();
     }
 
-    //If command was local, add card to client list, else send rpc to tell all clients to update their decks
     private void NetworkDrawCard()
     {
         if (view.IsMine)
         {
-            DrawCard();
-        }
-        else
-        {
-            //Updates all client decks so when someone picks up a card to keep decks synced
-            view.RPC("UpdateDrawDeckRpc", RpcTarget.Others);
+            byte dummy = 0;
+            RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.Others };
+            PhotonNetwork.RaiseEvent(DrawCardEventCode, dummy, eventOptions, SendOptions.SendReliable);
+
+            Card card = deck.DrawCard();
+            myCards.Add(card.GetCardId(), card);
+            UpdateCardUI();
         }
     }
 
@@ -194,24 +198,9 @@ public class Player : MonoBehaviour
     {
         if (PhotonNetwork.IsMasterClient)
         {
-            //gameStartButton.gameObject.SetActive(false);
-
             byte dummy = 0;
             RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
             PhotonNetwork.RaiseEvent(GameStartEventCode, dummy, eventOptions, SendOptions.SendReliable);
-        }
-    }
-
-    public void ClientStartGame(EventData photonEvent)
-    {
-        if (photonEvent.Code == GameStartEventCode)
-        {
-            if(view.IsMine)
-            {
-                drawCardsButton.interactable = true;
-                playCardsButton.interactable = true;
-                gameStartButton.gameObject.SetActive(false);
-            }
         }
     }
     #endregion

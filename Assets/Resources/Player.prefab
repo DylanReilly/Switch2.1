@@ -70,6 +70,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0937362348589c04584ca26e5eac1c59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cardsToPlay: 
   imagePrefab: {fileID: 7375314748806015419, guid: 16597be7c7ce66f49b20c0182a90046c, type: 3}
 --- !u!114 &3081565277193815260
 MonoBehaviour:
