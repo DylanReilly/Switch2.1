@@ -177,8 +177,8 @@ public class Player : MonoBehaviour
             if (!deck.CheckCardMatch(cardsToPlay[0]))
             {
                 //Draw two cards for a mistake
-                DrawMultipleCards(2);
                 cardsToPlay.Clear();
+                DrawMultipleCards(2);
                 return;
             }
 
@@ -212,6 +212,8 @@ public class Player : MonoBehaviour
     {
         if (view.IsMine)
         {
+            cardsToPlay.Clear();
+
             byte dummy = 0;
             RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.Others };
             PhotonNetwork.RaiseEvent(DrawCardEventCode, dummy, eventOptions, SendOptions.SendReliable);
