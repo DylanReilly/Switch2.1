@@ -85,7 +85,6 @@ public class Deck : MonoBehaviour
             {
                 do
                 {
-                    Debug.Log("Card destroyed");
                     PhotonNetwork.Destroy(GameObject.FindGameObjectWithTag("Card"));
                 }
                 while (GameObject.FindGameObjectWithTag("Card") != null);
