@@ -13,7 +13,7 @@ public class Player : MonoBehaviour
     Dictionary<short, Card> myCards = new Dictionary<short, Card>();
     Dictionary<short, Image> uiCards = new Dictionary<short, Image>();
     [SerializeField] List<short> cardsToPlay = new List<short>();
-    [SerializeField] Stack<Player> players = new Stack<Player>();
+    public Stack<Player> players = new Stack<Player>();
 
     //UI References
     [SerializeField] private Image imagePrefab = null;
@@ -24,17 +24,26 @@ public class Player : MonoBehaviour
     Button sortCardsButton = null;
     Image topCardImage = null;
     Canvas hud = null;
+    int spawnPoint = 0;
+    bool gameOn = false;
 
     //Game objects
     Deck deck = null;
     PhotonView view = null;
     Camera mainCamera = null;
+    TurnHandler turnHandler = null;
 
     //Event Codes
     public const byte PlayCardEventCode = 1;
     public const byte GameStartEventCode = 2;
     public const byte DrawCardEventCode = 3;
     public const byte DrawStartCardsEventCode = 4;
+    public const byte DealStartCardsLoopCode = 5;
+
+    public int GetSpawnPoint()
+    {
+        return spawnPoint;
+    }
     #endregion
 
     #region Start/Stop/Update
@@ -45,6 +54,7 @@ public class Player : MonoBehaviour
         view = GetComponent<PhotonView>();
         hud = GameObject.FindWithTag("Hud").GetComponent<Canvas>();
         deck = GameObject.FindWithTag("Deck").GetComponent<Deck>();
+        turnHandler = GameObject.Find("TurnHandler").GetComponent<TurnHandler>();
 
         //Sets all UI element references
         handStartPosition = hud.transform.Find("HandStartPosition").gameObject;
@@ -59,7 +69,7 @@ public class Player : MonoBehaviour
             gameStartButton.gameObject.SetActive(true);
             gameStartButton.onClick.AddListener(HostGameStart);
         }
-        else 
+        else
         {
             gameStartButton = hud.transform.Find("GameStartWaitButton").GetComponent<Button>();
             gameStartButton.gameObject.SetActive(true);
@@ -69,11 +79,13 @@ public class Player : MonoBehaviour
         drawCardsButton.onClick.AddListener(NetworkDrawCard);
         playCardsButton.onClick.AddListener(TryPlayCard);
         sortCardsButton.onClick.AddListener(SortHand);
-        
+
 
         //Subscribe to event
         PhotonNetwork.NetworkingClient.EventReceived += HandlePhotonEvents;
         UICardHandler.cardSelected += ChangeCardsToPlay;
+
+        FindSpawnPoint();
     }
 
     private void OnDestroy()
@@ -89,48 +101,98 @@ public class Player : MonoBehaviour
     public void HandlePhotonEvents(EventData photonEvent)
     {
         byte eventCode = photonEvent.Code;
+
+        //------Playing Cards
         if (eventCode == PlayCardEventCode)
         {
             if (view.IsMine)
             {
+                int jackCount = 0;
                 short[] cards = (short[])photonEvent.CustomData;
                 deck.PlayCard(cards);
                 topCardImage.sprite = deck.GetPlayDeckTopCard().GetCardSprite();
+
+                //Reverse the playing order for each Jack(card ID 11)
+                foreach (short id in cards)
+                {
+                    if (deck.FindCard(id).GetValue() == 11)
+                    {
+                        turnHandler.ReverseOrder();
+                        jackCount++;
+                    }
+                }
+
+                if (jackCount == 0 || jackCount % 2 == 0)
+                {
+                    turnHandler.PlayerUseTurn();
+                }
+
+                //Only let the player play cards if it is their turn
+                if (turnHandler.GetCurrentPlayer() == view.ViewID)
+                {
+                    playCardsButton.interactable = true;
+                }
+                else
+                {
+                    playCardsButton.interactable = false;
+                }
             }
         }
 
+        //------Drawing Cards
         else if (eventCode == DrawCardEventCode)
         {
             if (view.IsMine)
             {
-                Card card = deck.DrawCard();
+                if ((int)photonEvent.CustomData != view.ViewID)
+                {
+                    Card card = deck.DrawCard();
+                }
+                else
+                {
+                    //turnHandler.PlayerUseTurn();
+                    ////Only let the player play cards if it is their turn
+                    //if (turnHandler.GetCurrentPlayer() == view.ViewID && gameOn)
+                    //{
+                    //    playCardsButton.interactable = true;
+                    //}
+                    //else
+                    //{
+                    //    playCardsButton.interactable = false;
+                    //}
+                    
+                }
             }
         }
 
+        //------Game Start
         else if (photonEvent.Code == GameStartEventCode)
         {
             if (view.IsMine)
             {
                 drawCardsButton.interactable = true;
-                playCardsButton.interactable = true;
                 sortCardsButton.interactable = true;
                 gameStartButton.gameObject.SetActive(false);
+                turnHandler.AddPlayers();
             }
         }
 
-        else if(photonEvent.Code == DrawStartCardsEventCode)
+        //------Game Start Card Dealing
+        else if (photonEvent.Code == DrawStartCardsEventCode)
         {
             int eventViewID = (int)photonEvent.CustomData;
 
-            if (eventViewID == view.ViewID)
+            if (eventViewID == view.ViewID && view.IsMine)
             {
                 DrawMultipleCards(5);
+                DealStartCardsLoop();
             }
+        }
 
-            if (PhotonNetwork.IsMasterClient && view.IsMine)
-            {
-                DealStartCards();
-            }
+        //------Game Start Card Loop
+        else if (photonEvent.Code == DealStartCardsLoopCode)
+        {
+            DealStartCards();
         }
     }
 
@@ -214,9 +276,9 @@ public class Player : MonoBehaviour
         {
             cardsToPlay.Clear();
 
-            byte dummy = 0;
-            RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.Others };
-            PhotonNetwork.RaiseEvent(DrawCardEventCode, dummy, eventOptions, SendOptions.SendReliable);
+            int content = view.ViewID;
+            RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
+            PhotonNetwork.RaiseEvent(DrawCardEventCode, content, eventOptions, SendOptions.SendReliable);
 
             Card card = deck.DrawCard();
             myCards.Add(card.GetCardId(), card);
@@ -242,6 +304,7 @@ public class Player : MonoBehaviour
             }
             NetworkPlayCards();
 
+            //Creates a list of players viewID to later deal 5 cards each at start of game
             foreach (Player player in FindObjectsOfType<Player>())
             {
                 players.Push(player);
@@ -259,6 +322,31 @@ public class Player : MonoBehaviour
             int content = players.Pop().GetComponent<PhotonView>().ViewID;
             RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
             PhotonNetwork.RaiseEvent(DrawStartCardsEventCode, content, eventOptions, SendOptions.SendReliable);
+        }
+        else if (players.Count == 0)
+        {
+            gameOn = true;
+        }
+    }
+
+    //Event is used to recursively call DealStartCards for each player in turn
+    public void DealStartCardsLoop()
+    {
+        byte content = 0;
+        RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
+        PhotonNetwork.RaiseEvent(DealStartCardsLoopCode, content, eventOptions, SendOptions.SendReliable);
+    }
+
+    //Sets the index of the spawn point used by the player. Used to determine turn order
+    private void FindSpawnPoint()
+    {
+        SpawnPlayers spawner = GameObject.FindGameObjectWithTag("PauseMenu").GetComponentInChildren<SpawnPlayers>();
+        foreach (SpawnPoint point in spawner.spawnPoints)
+        {
+            if (gameObject.transform.position == point.transform.position)
+            {
+                spawnPoint = spawner.spawnPoints.IndexOf(point);
+            }
         }
     }
     #endregion

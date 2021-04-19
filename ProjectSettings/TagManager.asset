@@ -10,6 +10,7 @@ TagManager:
   - Hud
   - UICard
   - CardDealer
+  - PauseMenu
   layers:
   - Default
   - TransparentFX

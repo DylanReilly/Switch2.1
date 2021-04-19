@@ -8,22 +8,22 @@ public class SpawnPlayers : MonoBehaviour
 {
     public GameObject player;
     public List<SpawnPoint> spawnPoints = new List<SpawnPoint>();
-    public Player[] playerList;
+    public GameObject[] playerList;
+    public TurnHandler turnHandler = null;
 
     private void Start()
     {
-        playerList = FindObjectsOfType<Player>();
-        Debug.Log(playerList.Length);
+        playerList = GameObject.FindGameObjectsWithTag("LocalPlayer");
     }
 
     public void SelectSpawnPoint(int point)
     {
         bool canSpawn = true;
 
-        foreach (Player player in playerList)
+        foreach (GameObject player in playerList)
         {
             Debug.Log("Working");
-            if (spawnPoints[point - 1].transform.position == player.transform.position)
+            if (spawnPoints[point].transform.position == player.transform.position)
             {
                 Debug.Log("Point used");
                 canSpawn = false;
@@ -33,8 +33,9 @@ public class SpawnPlayers : MonoBehaviour
 
         if (canSpawn)
         {
-            PhotonNetwork.Instantiate(player.name, spawnPoints[point - 1].transform.position, Quaternion.identity);
-            gameObject.SetActive(false);
+            PhotonNetwork.Instantiate(player.name, spawnPoints[point].transform.position, Quaternion.identity);
+            foreach (Transform child in transform)
+                child.gameObject.SetActive(false);
         }
     }
 }
