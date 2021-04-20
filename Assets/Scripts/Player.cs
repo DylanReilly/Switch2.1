@@ -107,25 +107,58 @@ public class Player : MonoBehaviour
         {
             if (view.IsMine)
             {
-                int jackCount = 0;
+                //Stores the number of each trick card where the number matters
                 short[] cards = (short[])photonEvent.CustomData;
+                //A count of each trick card played (not including aces as they do not stack)
+                //2s = index[0] | 8s = index[1] | Jacks = index[2] | Black Queens = index[3] | Kings of Hearts = index[4]
+                byte[] trickCards = new byte[5];
                 deck.PlayCard(cards);
                 topCardImage.sprite = deck.GetPlayDeckTopCard().GetCardSprite();
 
-                //Reverse the playing order for each Jack(card ID 11)
+                #region Trick Card reading
+                //Get a count of each trick card in the cards played
                 foreach (short id in cards)
                 {
-                    if (deck.FindCard(id).GetValue() == 11)
+                    Card card = deck.FindCard(id);
+
+                    switch (card.GetValue())
                     {
-                        turnHandler.ReverseOrder();
-                        jackCount++;
+                        case 2:
+                            trickCards[0]++;
+                            break;
+
+                        case 8:
+                            turnHandler.PlayerUseTurn();
+                            trickCards[1]++;
+                            break;
+
+                        case 11:
+                            turnHandler.ReverseOrder();
+                            trickCards[2]++;
+                            break;
+
+                        case 12:
+                            if (card.GetSuit() == 3 || card.GetSuit() == 4)
+                            {
+                                trickCards[3]++;
+                            }
+                            break;
+
+                        case 13:
+                            if (card.GetSuit() == 1)
+                            {
+                                trickCards[4]++;
+                            }
+                            break;
                     }
                 }
-
-                if (jackCount == 0 || jackCount % 2 == 0)
+                //Only use turn if jacks havnt reversed the order
+                if (trickCards[2] % 2 == 0 || trickCards[2] == 0)
                 {
                     turnHandler.PlayerUseTurn();
                 }
+                #endregion
+
 
                 //Only let the player play cards if it is their turn
                 if (turnHandler.GetCurrentPlayer() == view.ViewID)
@@ -148,19 +181,14 @@ public class Player : MonoBehaviour
                 {
                     Card card = deck.DrawCard();
                 }
-                else
+
+                if ((int)photonEvent.CustomData == turnHandler.GetCurrentPlayer())
                 {
-                    //turnHandler.PlayerUseTurn();
-                    ////Only let the player play cards if it is their turn
-                    //if (turnHandler.GetCurrentPlayer() == view.ViewID && gameOn)
-                    //{
-                    //    playCardsButton.interactable = true;
-                    //}
-                    //else
-                    //{
-                    //    playCardsButton.interactable = false;
-                    //}
-                    
+                    turnHandler.PlayerUseTurn();
+                    if (turnHandler.GetCurrentPlayer() == view.ViewID)
+                    {
+                        playCardsButton.interactable = true;
+                    }
                 }
             }
         }
@@ -283,6 +311,8 @@ public class Player : MonoBehaviour
             Card card = deck.DrawCard();
             myCards.Add(card.GetCardId(), card);
             UpdateCardUI();
+
+            playCardsButton.interactable = false;
         }
     }
 
@@ -291,7 +321,7 @@ public class Player : MonoBehaviour
     {
         if (PhotonNetwork.IsMasterClient && view.IsMine)
         {
-            
+
             byte dummy = 0;
             RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
             PhotonNetwork.RaiseEvent(GameStartEventCode, dummy, eventOptions, SendOptions.SendReliable);

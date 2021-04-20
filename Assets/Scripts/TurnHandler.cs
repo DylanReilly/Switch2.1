@@ -39,6 +39,7 @@ public class TurnHandler : MonoBehaviour
         Player player = playerQueue[0];
         playerQueue.Remove(player);
         playerQueue.Add(player);
+        Debug.Log(player.GetComponent<PhotonView>().ViewID);
     }
 
     public int GetCurrentPlayer()
