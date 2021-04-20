@@ -94,10 +94,10 @@ public class Player : MonoBehaviour
         chooseSpades = aceSuitSelection.transform.Find("SpadesButton").GetComponent<Button>();
 
         //Sets method calls for each button
-        chooseHearts.onClick.AddListener(delegate { SetAceSuit(deck.GetPlayDeckTopCard().GetCardId(), 1); });
-        chooseDiamonds.onClick.AddListener(delegate { SetAceSuit(deck.GetPlayDeckTopCard().GetCardId(), 2); });
-        chooseClubs.onClick.AddListener(delegate { SetAceSuit(deck.GetPlayDeckTopCard().GetCardId(), 3); });
-        chooseSpades.onClick.AddListener(delegate { SetAceSuit(deck.GetPlayDeckTopCard().GetCardId(), 4); });
+        chooseHearts.onClick.AddListener(delegate { SetAceSuitRPC(deck.GetPlayDeckTopCard().GetCardId(), 1); });
+        chooseDiamonds.onClick.AddListener(delegate { SetAceSuitRPC(deck.GetPlayDeckTopCard().GetCardId(), 2); });
+        chooseClubs.onClick.AddListener(delegate { SetAceSuitRPC(deck.GetPlayDeckTopCard().GetCardId(), 3); });
+        chooseSpades.onClick.AddListener(delegate { SetAceSuitRPC(deck.GetPlayDeckTopCard().GetCardId(), 4); });
 
 
         //Adds method calls to UI buttons
@@ -192,7 +192,7 @@ public class Player : MonoBehaviour
                 //Let player set ace value
                 if (trickCards[0] > 0 && turnHandler.GetCurrentPlayer() == view.ViewID)
                 {
-                    //aceSuitSelection.GetComponent<CanvasGroup>().alpha = 1;
+                    aceSuitSelection.GetComponent<CanvasGroup>().alpha = 1;
                 }
 
                 //Only use turn if jacks havn't reversed the order
@@ -291,10 +291,19 @@ public class Player : MonoBehaviour
         }
     }
 
-    public void SetAceSuit(byte id, byte suit)
+    [PunRPC]
+    public void SetAceSuit(byte[] content)
     {
-        deck.SetAceSuit(id, suit);
+        deck.SetAceSuit(content[0], content[1]);
         aceSuitSelection.GetComponent<CanvasGroup>().alpha = 0;
+    }
+
+    public void SetAceSuitRPC(byte id, byte suit)
+    {
+        byte[] content = new byte[2];
+        content[0] = id;
+        content[1] = suit;
+        view.RPC("SetAceSuit", RpcTarget.All, content);
     }
 
     //Used for adding multiple cards for mistakes, tricks or deals
