@@ -71,6 +71,11 @@ public class Deck : MonoBehaviour
         return lookupDeck[id];
     }
 
+    public void SetAceSuit(short id, int suit)
+    {
+        lookupDeck[id].SetSuit(suit);
+    }
+
     #endregion
 
     #region 3D deck handling

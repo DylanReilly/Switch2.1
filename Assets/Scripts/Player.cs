@@ -5,6 +5,7 @@ using Photon.Realtime;
 using Photon.Pun;
 using ExitGames.Client.Photon;
 using System.Linq;
+using System.Collections;
 
 public class Player : MonoBehaviour
 {
@@ -26,6 +27,13 @@ public class Player : MonoBehaviour
     Canvas hud = null;
     int spawnPoint = 0;
     bool gameOn = false;
+
+    //Ace selection handlers
+    GameObject aceSuitSelection = null;
+    Button chooseHearts = null;
+    Button chooseDiamonds = null;
+    Button chooseSpades = null;
+    Button chooseClubs = null;
 
     //Game objects
     Deck deck = null;
@@ -55,6 +63,7 @@ public class Player : MonoBehaviour
         hud = GameObject.FindWithTag("Hud").GetComponent<Canvas>();
         deck = GameObject.FindWithTag("Deck").GetComponent<Deck>();
         turnHandler = GameObject.Find("TurnHandler").GetComponent<TurnHandler>();
+        
 
         //Sets all UI element references
         handStartPosition = hud.transform.Find("HandStartPosition").gameObject;
@@ -66,6 +75,7 @@ public class Player : MonoBehaviour
         if (PhotonNetwork.IsMasterClient)
         {
             gameStartButton = hud.transform.Find("GameStartButton").GetComponent<Button>();
+            Debug.Log("Start button");
             gameStartButton.gameObject.SetActive(true);
             gameStartButton.onClick.AddListener(HostGameStart);
         }
@@ -75,10 +85,27 @@ public class Player : MonoBehaviour
             gameStartButton.gameObject.SetActive(true);
         }
 
+        //Sets ace selection buttons
+        aceSuitSelection = hud.transform.Find("AceSuitSelection").gameObject;
+        //Sets reference to each button
+        chooseHearts = aceSuitSelection.transform.Find("HeartsButton").GetComponent<Button>();
+        chooseDiamonds = aceSuitSelection.transform.Find("DiamondsButton").GetComponent<Button>();
+        chooseClubs = aceSuitSelection.transform.Find("ClubsButton").GetComponent<Button>();
+        chooseSpades = aceSuitSelection.transform.Find("SpadesButton").GetComponent<Button>();
+
+        //Sets method calls for each button
+        chooseHearts.onClick.AddListener(delegate { SetAceSuit(deck.GetPlayDeckTopCard().GetCardId(), 1); });
+        chooseDiamonds.onClick.AddListener(delegate { SetAceSuit(deck.GetPlayDeckTopCard().GetCardId(), 2); });
+        chooseClubs.onClick.AddListener(delegate { SetAceSuit(deck.GetPlayDeckTopCard().GetCardId(), 3); });
+        chooseSpades.onClick.AddListener(delegate { SetAceSuit(deck.GetPlayDeckTopCard().GetCardId(), 4); });
+
+
         //Adds method calls to UI buttons
         drawCardsButton.onClick.AddListener(NetworkDrawCard);
         playCardsButton.onClick.AddListener(TryPlayCard);
         sortCardsButton.onClick.AddListener(SortHand);
+
+
 
 
         //Subscribe to event
@@ -109,11 +136,10 @@ public class Player : MonoBehaviour
             {
                 //Stores the number of each trick card where the number matters
                 short[] cards = (short[])photonEvent.CustomData;
-                //A count of each trick card played (not including aces as they do not stack)
-                //2s = index[0] | 8s = index[1] | Jacks = index[2] | Black Queens = index[3] | Kings of Hearts = index[4]
-                byte[] trickCards = new byte[5];
-                deck.PlayCard(cards);
-                topCardImage.sprite = deck.GetPlayDeckTopCard().GetCardSprite();
+                //A count of each trick card played
+                //Aces = index[0] 2s = index[2] | 8s = index[2] | Jacks = index[3] | Black Queens = index[4] | Kings of Hearts = index[5]
+                byte[] trickCards = new byte[6];
+                
 
                 #region Trick Card reading
                 //Get a count of each trick card in the cards played
@@ -123,42 +149,58 @@ public class Player : MonoBehaviour
 
                     switch (card.GetValue())
                     {
-                        case 2:
+                        //Ace
+                        case 1:
                             trickCards[0]++;
                             break;
 
-                        case 8:
-                            turnHandler.PlayerUseTurn();
+                        //Twos
+                        case 2:
                             trickCards[1]++;
                             break;
 
-                        case 11:
-                            turnHandler.ReverseOrder();
+                        //Eights
+                        case 8:
+                            turnHandler.PlayerUseTurn();
                             trickCards[2]++;
                             break;
 
-                        case 12:
-                            if (card.GetSuit() == 3 || card.GetSuit() == 4)
-                            {
-                                trickCards[3]++;
-                            }
+                        //Jacks
+                        case 11:
+                            turnHandler.ReverseOrder();
+                            trickCards[3]++;
                             break;
 
-                        case 13:
-                            if (card.GetSuit() == 1)
+                        //Black Queens
+                        case 12:
+                            if (card.GetSuit() == 3 || card.GetSuit() == 4)
                             {
                                 trickCards[4]++;
                             }
                             break;
+
+                        //King of Hearts
+                        case 13:
+                            if (card.GetSuit() == 1)
+                            {
+                                trickCards[5]++;
+                            }
+                            break;
                     }
                 }
-                //Only use turn if jacks havnt reversed the order
-                if (trickCards[2] % 2 == 0 || trickCards[2] == 0)
+
+                //Let player set ace value
+                if (trickCards[0] > 0 && turnHandler.GetCurrentPlayer() == view.ViewID)
+                {
+                    aceSuitSelection.GetComponent<CanvasGroup>().alpha = 1;
+                }
+
+                //Only use turn if jacks havn't reversed the order
+                if (trickCards[3] % 2 == 0 || trickCards[3] == 0)
                 {
                     turnHandler.PlayerUseTurn();
                 }
                 #endregion
-
 
                 //Only let the player play cards if it is their turn
                 if (turnHandler.GetCurrentPlayer() == view.ViewID)
@@ -169,6 +211,9 @@ public class Player : MonoBehaviour
                 {
                     playCardsButton.interactable = false;
                 }
+
+                deck.PlayCard(cards);
+                topCardImage.sprite = deck.GetPlayDeckTopCard().GetCardSprite();
             }
         }
 
@@ -244,6 +289,12 @@ public class Player : MonoBehaviour
                 uiCards[card].GetComponentInChildren<Text>().text = (cardsToPlay.IndexOf(card) + 1).ToString();
             }
         }
+    }
+
+    public void SetAceSuit(short id, int suit)
+    {
+        deck.SetAceSuit(id, suit);
+        aceSuitSelection.GetComponent<CanvasGroup>().alpha = 0;
     }
 
     //Used for adding multiple cards for mistakes, tricks or deals
