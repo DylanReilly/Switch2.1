@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class UICardHandler : MonoBehaviour
 {
     public bool isSelected = false;
-    public static event Action<bool, short> cardSelected;
+    public static event Action<bool, byte> cardSelected;
 
     //Raise card whe hovering over the UI
     public void OnEnter()
@@ -33,12 +33,12 @@ public class UICardHandler : MonoBehaviour
     public void OnClick()
     {   
         Image image = gameObject.GetComponent<Image>();
-        short numSize = 1;
+        byte numSize = 1;
         if(image.sprite.name.Length > 14)
         {
             numSize = 2;
         }
-        short imageId = short.Parse(image.sprite.name.Substring(13, numSize));
+        byte imageId = byte.Parse(image.sprite.name.Substring(13, numSize));
 
         if (isSelected) 
         {

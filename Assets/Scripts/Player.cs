@@ -11,9 +11,9 @@ public class Player : MonoBehaviour
 {
     #region Member Variables
     //Containers
-    Dictionary<short, Card> myCards = new Dictionary<short, Card>();
-    Dictionary<short, Image> uiCards = new Dictionary<short, Image>();
-    [SerializeField] List<short> cardsToPlay = new List<short>();
+    Dictionary<byte, Card> myCards = new Dictionary<byte, Card>();
+    Dictionary<byte, Image> uiCards = new Dictionary<byte, Image>();
+    [SerializeField] List<byte> cardsToPlay = new List<byte>();
     public Stack<Player> players = new Stack<Player>();
 
     //UI References
@@ -135,7 +135,7 @@ public class Player : MonoBehaviour
             if (view.IsMine)
             {
                 //Stores the number of each trick card where the number matters
-                short[] cards = (short[])photonEvent.CustomData;
+                byte[] cards = (byte[])photonEvent.CustomData;
                 //A count of each trick card played
                 //Aces = index[0] 2s = index[2] | 8s = index[2] | Jacks = index[3] | Black Queens = index[4] | Kings of Hearts = index[5]
                 byte[] trickCards = new byte[6];
@@ -143,7 +143,7 @@ public class Player : MonoBehaviour
 
                 #region Trick Card reading
                 //Get a count of each trick card in the cards played
-                foreach (short id in cards)
+                foreach (byte id in cards)
                 {
                     Card card = deck.FindCard(id);
 
@@ -192,7 +192,7 @@ public class Player : MonoBehaviour
                 //Let player set ace value
                 if (trickCards[0] > 0 && turnHandler.GetCurrentPlayer() == view.ViewID)
                 {
-                    aceSuitSelection.GetComponent<CanvasGroup>().alpha = 1;
+                    //aceSuitSelection.GetComponent<CanvasGroup>().alpha = 1;
                 }
 
                 //Only use turn if jacks havn't reversed the order
@@ -271,7 +271,7 @@ public class Player : MonoBehaviour
 
     //Adds or removes cards from play hand when selected
     //Also numbers cards based on the order they will be played
-    public void ChangeCardsToPlay(bool isPickup, short cardId)
+    public void ChangeCardsToPlay(bool isPickup, byte cardId)
     {
         if (view.IsMine)
         {
@@ -284,21 +284,21 @@ public class Player : MonoBehaviour
                 cardsToPlay.Remove(cardId);
                 uiCards[cardId].GetComponentInChildren<Text>().text = null;
             }
-            foreach (short card in cardsToPlay)
+            foreach (byte card in cardsToPlay)
             {
                 uiCards[card].GetComponentInChildren<Text>().text = (cardsToPlay.IndexOf(card) + 1).ToString();
             }
         }
     }
 
-    public void SetAceSuit(short id, int suit)
+    public void SetAceSuit(byte id, byte suit)
     {
         deck.SetAceSuit(id, suit);
         aceSuitSelection.GetComponent<CanvasGroup>().alpha = 0;
     }
 
     //Used for adding multiple cards for mistakes, tricks or deals
-    public void DrawMultipleCards(short numCards)
+    public void DrawMultipleCards(byte numCards)
     {
         if (view.IsMine)
         {
@@ -332,14 +332,14 @@ public class Player : MonoBehaviour
     //Sends event to all players to replace the top card with cardId "content"
     private void NetworkPlayCards()
     {
-        short[] content = cardsToPlay.ToArray();
+        byte[] content = cardsToPlay.ToArray();
         RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
         PhotonNetwork.RaiseEvent(PlayCardEventCode, content, eventOptions, SendOptions.SendReliable);
 
         if (view.IsMine)
         {
             //Removes the card from player hand and updates UI to match
-            foreach (short cardId in cardsToPlay)
+            foreach (byte cardId in cardsToPlay)
             {
                 myCards.Remove(cardId);
             }
@@ -379,7 +379,7 @@ public class Player : MonoBehaviour
 
             //Used to play the very first card of the game
             NetworkDrawCard();
-            foreach (KeyValuePair<short, Card> card in myCards)
+            foreach (KeyValuePair<byte, Card> card in myCards)
             {
                 cardsToPlay.Add(card.Key);
             }
@@ -448,7 +448,7 @@ public class Player : MonoBehaviour
         //Removes all pairs so the dictionary can be re-populated below
         uiCards.Clear();
 
-        foreach (KeyValuePair<short, Card> card in myCards)
+        foreach (KeyValuePair<byte, Card> card in myCards)
         {
             //Button imageInstance = Instantiate(imagePrefab);
             Image imageInstance = Instantiate(imagePrefab);
@@ -465,21 +465,24 @@ public class Player : MonoBehaviour
 
     public void SortHand()
     {
-        List<KeyValuePair<short, Card>> myList = myCards.ToList();
-
-        myList.Sort(
-            delegate (KeyValuePair<short, Card> pair1, KeyValuePair<short, Card> pair2)
-            {
-                return pair1.Value.GetValue().CompareTo(pair2.Value.GetValue());
-            }
-        );
-
-        myCards.Clear();
-        foreach (KeyValuePair<short, Card> card in myList)
+        if (view.IsMine)
         {
-            myCards.Add(card.Key, card.Value);
+            List<KeyValuePair<byte, Card>> myList = myCards.ToList();
+
+            myList.Sort(
+                delegate (KeyValuePair<byte, Card> pair1, KeyValuePair<byte, Card> pair2)
+                {
+                    return pair1.Value.GetValue().CompareTo(pair2.Value.GetValue());
+                }
+            );
+
+            myCards.Clear();
+            foreach (KeyValuePair<byte, Card> card in myList)
+            {
+                myCards.Add(card.Key, card.Value);
+            }
+            UpdateCardUI();
         }
-        UpdateCardUI();
     }
     #endregion
 }

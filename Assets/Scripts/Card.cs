@@ -7,15 +7,15 @@ using UnityEngine.UI;
 
 public class Card : MonoBehaviour, IComparer
 {
-    [SerializeField] private short value;
-    [SerializeField] private int suit;
+    [SerializeField] private byte value;
+    [SerializeField] private byte suit;
     [SerializeField] GameObject cardModel;
-    [SerializeField] private short id = -1;
+    [SerializeField] private byte id = 0;
     [SerializeField] private Sprite cardSprite;
     private static Deck deck = null;
 
     #region Getters/Setters
-    public short GetCardId()
+    public byte GetCardId()
     {
         return id;
     }
@@ -35,17 +35,17 @@ public class Card : MonoBehaviour, IComparer
         return cardSprite;
     }
 
-    public void SetCardId(short cardId)
+    public void SetCardId(byte cardId)
     {
         id = cardId;
     }
 
-    public void SetValue(short cardValue)
+    public void SetValue(byte cardValue)
     {
         value = cardValue;
     }
 
-    public void SetSuit(int cardSuit)
+    public void SetSuit(byte cardSuit)
     {
         suit = cardSuit;
     }
@@ -77,12 +77,12 @@ public class Card : MonoBehaviour, IComparer
     #region Serialization
     public static Card Deserialize(byte[] data)
     {
-        short result = -1;
+        byte result = 0;
         using (MemoryStream m = new MemoryStream(data))
         {
             using (BinaryReader reader = new BinaryReader(m))
             {
-                result = reader.ReadInt16();
+                result = reader.ReadByte();
             }
         }
         return deck.FindCard(result);

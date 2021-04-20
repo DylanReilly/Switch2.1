@@ -11,7 +11,7 @@ public class Deck : MonoBehaviour
     private Stack<Card> playDeck = new Stack<Card>();
     [SerializeField]List<Card> tempDraw = new List<Card>();
     [SerializeField] List<Card> tempPlay = new List<Card>();
-    private Dictionary<short, Card> lookupDeck = new Dictionary<short, Card>();
+    private Dictionary<byte, Card> lookupDeck = new Dictionary<byte, Card>();
 
     public void Start()
     {
@@ -23,7 +23,7 @@ public class Deck : MonoBehaviour
     //Used to play the very first card at the beginning of the game. Called by host on game start
     public void PlayFirstCard()
     {
-        short[] startCard = new short[1];
+        byte[] startCard = new byte[1];
         startCard[0] = DrawCard().GetCardId();
         PlayCard(startCard);
     }
@@ -51,9 +51,9 @@ public class Deck : MonoBehaviour
         return card;
     }
 
-    public void PlayCard(short[] cards)
+    public void PlayCard(byte[] cards)
     {
-        foreach (short cardId in cards)
+        foreach (byte cardId in cards)
         {
             playDeck.Push(lookupDeck[cardId]);
             tempPlay.Add(lookupDeck[cardId]);
@@ -66,12 +66,12 @@ public class Deck : MonoBehaviour
         drawDeck.Push(card);
     }
 
-    public Card FindCard(short id)
+    public Card FindCard(byte id)
     {
         return lookupDeck[id];
     }
 
-    public void SetAceSuit(short id, int suit)
+    public void SetAceSuit(byte id, byte suit)
     {
         lookupDeck[id].SetSuit(suit);
     }
@@ -79,7 +79,7 @@ public class Deck : MonoBehaviour
     #endregion
 
     #region 3D deck handling
-    public void RenderCards(short[] cards)
+    public void RenderCards(byte[] cards)
     {
         //If you are the host, destroy all cards on the network and add new card
         //Host does this to stop multiple copies of each card from being instantiated
@@ -97,7 +97,7 @@ public class Deck : MonoBehaviour
 
             float xOffset = 0.0f;
             float yOffset = 0.0f;
-            foreach (short cardId in cards)
+            foreach (byte cardId in cards)
             {
                 PhotonNetwork.Instantiate("Cards/CardInstances/" + lookupDeck[cardId].name, transform.position + new Vector3(xOffset, yOffset, 0), Quaternion.identity);
                 xOffset += 0.05f;
@@ -127,7 +127,7 @@ public class Deck : MonoBehaviour
     }
 
     //Checks the card of cardId to see if it can be played on the deck
-    public bool CheckCardMatch(short cardId)
+    public bool CheckCardMatch(byte cardId)
     {
         Card card = lookupDeck[cardId];
         //Checks if suits value
