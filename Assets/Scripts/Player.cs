@@ -23,10 +23,11 @@ public class Player : MonoBehaviour
     Button playCardsButton = null;
     Button gameStartButton = null;
     Button sortCardsButton = null;
-    Image topCardImage = null;
     Canvas hud = null;
     int spawnPoint = 0;
-    bool gameOn = false;
+    GameObject chatBox = null;
+    Text chatBoxText = null;
+
 
     //Ace selection handlers
     GameObject aceSuitSelection = null;
@@ -74,12 +75,13 @@ public class Player : MonoBehaviour
         drawCardsButton = hud.transform.Find("DrawCardsButton").GetComponent<Button>();
         playCardsButton = hud.transform.Find("PlayCardsButton").GetComponent<Button>();
         sortCardsButton = hud.transform.Find("SortCardsButton").GetComponent<Button>();
-        topCardImage = hud.transform.Find("TopCardImage").GetComponent<Image>();
+        chatBox = hud.transform.Find("ChatBox").gameObject;
+        chatBoxText = chatBox.GetComponentInChildren<Text>();
+
 
         if (PhotonNetwork.IsMasterClient)
         {
             gameStartButton = hud.transform.Find("GameStartButton").GetComponent<Button>();
-            Debug.Log("Start button");
             gameStartButton.gameObject.SetActive(true);
             gameStartButton.onClick.AddListener(HostGameStart);
         }
@@ -89,6 +91,7 @@ public class Player : MonoBehaviour
             gameStartButton.gameObject.SetActive(true);
         }
 
+        #region Ace handling
         //Sets ace selection buttons
         aceSuitSelection = hud.transform.Find("AceSuitSelection").gameObject;
         //Sets reference to each button
@@ -102,15 +105,12 @@ public class Player : MonoBehaviour
         chooseDiamonds.onClick.AddListener(delegate { SetAceSuitRPC(deck.GetPlayDeckTopCard().GetCardId(), 2); });
         chooseClubs.onClick.AddListener(delegate { SetAceSuitRPC(deck.GetPlayDeckTopCard().GetCardId(), 3); });
         chooseSpades.onClick.AddListener(delegate { SetAceSuitRPC(deck.GetPlayDeckTopCard().GetCardId(), 4); });
-
+        #endregion
 
         //Adds method calls to UI buttons
         drawCardsButton.onClick.AddListener(NetworkDrawCard);
         playCardsButton.onClick.AddListener(TryPlayCard);
         sortCardsButton.onClick.AddListener(SortHand);
-
-
-
 
         //Subscribe to event
         PhotonNetwork.NetworkingClient.EventReceived += HandlePhotonEvents;
@@ -138,6 +138,10 @@ public class Player : MonoBehaviour
         {
             if (view.IsMine)
             {
+                string chatUpdate = "";
+                chatUpdate += turnHandler.GetCurrentPlayer().ToString();
+                chatUpdate += " played the ";
+
                 //Stores the number of each trick card where the number matters
                 byte[] cards = (byte[])photonEvent.CustomData;
 
@@ -150,7 +154,7 @@ public class Player : MonoBehaviour
                 foreach (byte id in cards)
                 {
                     Card card = deck.FindCard(id);
-
+                    chatUpdate += card.ToString();
                     switch (card.GetValue())
                     {
                         //Ace
@@ -220,7 +224,8 @@ public class Player : MonoBehaviour
                 }
 
                 deck.PlayCard(cards);
-                topCardImage.sprite = deck.GetPlayDeckTopCard().GetCardSprite();
+                
+                NetworkUpdateChatBox(chatUpdate);
             }
         }
 
@@ -316,6 +321,8 @@ public class Player : MonoBehaviour
         byte[] content = new byte[2];
         content[0] = id;
         content[1] = suit;
+
+        NetworkUpdateChatBox(view.ViewID.ToString() + " changed the suit to " + deck.CheckSuit(suit));
         view.RPC("SetAceSuit", RpcTarget.All, content);
     }
 
@@ -336,6 +343,7 @@ public class Player : MonoBehaviour
     {
         if (view.IsMine)
         {
+            //Check for 2s played into the player
             if (deck.GetPlayDeckTopCard().GetValue() == 2 && twoCount > 0)
             {                
                 if (deck.FindCard(cardsToPlay[0]).GetValue() != 2)
@@ -348,10 +356,13 @@ public class Player : MonoBehaviour
                     numCards += 2; 
                     cardsToPlay.Clear();
                     DrawMultipleCards((byte)numCards);
+
+                    NetworkUpdateChatBox(view.ViewID.ToString() + " picked up " + numCards + " cards");
                     return;
                 }
             }
 
+            //Check for kings
             if (deck.GetPlayDeckTopCard().GetValue() == 13 && deck.GetPlayDeckTopCard().GetSuit() == 1 && kingCount > 0)
             {
                 if (deck.FindCard(cardsToPlay[0]).GetValue() != 5 || deck.FindCard(cardsToPlay[0]).GetSuit() != 1)
@@ -361,9 +372,9 @@ public class Player : MonoBehaviour
                     RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
                     PhotonNetwork.RaiseEvent(ResetTrickCount, 0, eventOptions, SendOptions.SendReliable);
 
-                    //numCards ;
                     cardsToPlay.Clear();
                     DrawMultipleCards((byte)numCards);
+                    NetworkUpdateChatBox(view.ViewID.ToString() + " failed to commit regicide");
                     return;
                 }
             }
@@ -371,11 +382,9 @@ public class Player : MonoBehaviour
             //Checks if the first card matches the deck ie: can be played
             if (!deck.CheckCardMatch(cardsToPlay[0]))
             {
-                //RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
-                //PhotonNetwork.RaiseEvent(ResetTrickCardList, 0, eventOptions, SendOptions.SendReliable);
-
                 cardsToPlay.Clear();
                 DrawMultipleCards(2);
+                NetworkUpdateChatBox(view.ViewID.ToString() + " should know better...2 cards");
                 return;
             }
             NetworkPlayCards();
@@ -459,10 +468,6 @@ public class Player : MonoBehaviour
             RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
             PhotonNetwork.RaiseEvent(DrawStartCardsEventCode, content, eventOptions, SendOptions.SendReliable);
         }
-        else if (players.Count == 0)
-        {
-            gameOn = true;
-        }
     }
 
     //Event is used to recursively call DealStartCards for each player in turn
@@ -485,6 +490,34 @@ public class Player : MonoBehaviour
             }
         }
     }
+
+    private void NetworkUpdateChatBox(string message)
+    {
+        view.RPC("UpdateChatBox", RpcTarget.All, message);
+    }
+
+    [PunRPC]
+    private void UpdateChatBox(string message)
+    {
+        if (view.IsMine)
+        {
+            chatBox.GetComponent<CanvasGroup>().alpha = 1;
+            chatBoxText.text += "\n";
+            chatBoxText.text += message;
+            StartCoroutine("ChatBoxFade");
+        }
+    }
+
+    IEnumerator ChatBoxFade()
+    {
+        for (float ft = 1f; ft >= 0; ft -= 0.05f)
+        {
+            if (ft < 0.05) { ft = 0f; }
+            chatBox.GetComponent<CanvasGroup>().alpha = ft;
+            yield return new WaitForSeconds(.1f);
+        }
+    }
+
     #endregion
 
     #region UI

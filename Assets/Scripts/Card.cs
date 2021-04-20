@@ -74,6 +74,56 @@ public class Card : MonoBehaviour, IComparer
         return current.value.CompareTo(other.value);
     }
 
+    public override string ToString()
+    {
+        string sValue = "";
+        string sSuit = "";
+
+        switch (value)
+        {
+            case 1:
+                sValue = "Ace ";
+                break;
+
+            case 11:
+                sValue = "Jack ";
+                break;
+
+            case 12:
+                sValue = "Queen ";
+                break;
+
+            case 13:
+                sValue = "King ";
+                break;
+
+            default:
+                sValue = value.ToString() + " ";
+                break;
+        }
+
+        switch(suit)
+        {
+            case 1:
+                sSuit = " Hearts";
+                break;
+
+            case 2:
+                sSuit = " Diamonds";
+                break;
+
+            case 3:
+                sSuit = " Clubs";
+                break;
+
+            case 4:
+                sSuit = " Spades";
+                break;
+        }
+
+        return sValue + "of" + sSuit + " ";
+    }
+
     #region Serialization
     public static Card Deserialize(byte[] data)
     {

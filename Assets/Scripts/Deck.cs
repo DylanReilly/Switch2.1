@@ -76,6 +76,31 @@ public class Deck : MonoBehaviour
         lookupDeck[id].SetSuit(suit);
     }
 
+    public string CheckSuit(byte suit)
+    {
+        string sSuit = "";
+
+        switch (suit)
+        {
+            case 1:
+                sSuit = "Hearts";
+                break;
+
+            case 2:
+                sSuit = "Diamonds";
+                break;
+
+            case 3:
+                sSuit = "Spades";
+                break;
+
+            case 4:
+                sSuit = "Clubs";
+                break;
+        }
+        return sSuit;
+    }
+
     #endregion
 
     #region 3D deck handling

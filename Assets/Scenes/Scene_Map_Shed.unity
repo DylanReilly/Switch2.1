@@ -1005,6 +1005,46 @@ PrefabInstance:
       propertyPath: m_Name
       value: CardUI
       objectReference: {fileID: 0}
+    - target: {fileID: 1630046813324732088, guid: 0dfe996bb49a33f41b4f64fb01a6a746, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1630046813324732088, guid: 0dfe996bb49a33f41b4f64fb01a6a746, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6108898704895333660, guid: 0dfe996bb49a33f41b4f64fb01a6a746, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6108898704895333660, guid: 0dfe996bb49a33f41b4f64fb01a6a746, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7731574412060426186, guid: 0dfe996bb49a33f41b4f64fb01a6a746, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7731574412060426186, guid: 0dfe996bb49a33f41b4f64fb01a6a746, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7731574412060426186, guid: 0dfe996bb49a33f41b4f64fb01a6a746, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9120231336099615939, guid: 0dfe996bb49a33f41b4f64fb01a6a746, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9120231336099615939, guid: 0dfe996bb49a33f41b4f64fb01a6a746, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9120231336099615939, guid: 0dfe996bb49a33f41b4f64fb01a6a746, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0dfe996bb49a33f41b4f64fb01a6a746, type: 3}
 --- !u!1001 &1083837502
