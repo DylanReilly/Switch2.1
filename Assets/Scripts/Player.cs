@@ -41,12 +41,16 @@ public class Player : MonoBehaviour
     Camera mainCamera = null;
     TurnHandler turnHandler = null;
 
+    byte twoCount = 0;
+    byte kingCount = 0;
+
     //Event Codes
     public const byte PlayCardEventCode = 1;
     public const byte GameStartEventCode = 2;
     public const byte DrawCardEventCode = 3;
     public const byte DrawStartCardsEventCode = 4;
     public const byte DealStartCardsLoopCode = 5;
+    public const byte ResetTrickCount = 6;
 
     public int GetSpawnPoint()
     {
@@ -63,7 +67,7 @@ public class Player : MonoBehaviour
         hud = GameObject.FindWithTag("Hud").GetComponent<Canvas>();
         deck = GameObject.FindWithTag("Deck").GetComponent<Deck>();
         turnHandler = GameObject.Find("TurnHandler").GetComponent<TurnHandler>();
-        
+
 
         //Sets all UI element references
         handStartPosition = hud.transform.Find("HandStartPosition").gameObject;
@@ -136,10 +140,10 @@ public class Player : MonoBehaviour
             {
                 //Stores the number of each trick card where the number matters
                 byte[] cards = (byte[])photonEvent.CustomData;
+
                 //A count of each trick card played
                 //Aces = index[0] 2s = index[2] | 8s = index[2] | Jacks = index[3] | Black Queens = index[4] | Kings of Hearts = index[5]
                 byte[] trickCards = new byte[6];
-                
 
                 #region Trick Card reading
                 //Get a count of each trick card in the cards played
@@ -188,6 +192,9 @@ public class Player : MonoBehaviour
                             break;
                     }
                 }
+
+                twoCount += trickCards[1];
+                kingCount += trickCards[5];
 
                 //Let player set ace value
                 if (trickCards[0] > 0 && turnHandler.GetCurrentPlayer() == view.ViewID)
@@ -267,6 +274,12 @@ public class Player : MonoBehaviour
         {
             DealStartCards();
         }
+
+        else if (photonEvent.Code == ResetTrickCount)
+        {
+            twoCount = 0;
+            kingCount = 0;
+        }
     }
 
     //Adds or removes cards from play hand when selected
@@ -323,15 +336,48 @@ public class Player : MonoBehaviour
     {
         if (view.IsMine)
         {
+            if (deck.GetPlayDeckTopCard().GetValue() == 2 && twoCount > 0)
+            {                
+                if (deck.FindCard(cardsToPlay[0]).GetValue() != 2)
+                {
+                    int numCards = twoCount * 2;
+
+                    RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
+                    PhotonNetwork.RaiseEvent(ResetTrickCount, 0, eventOptions, SendOptions.SendReliable);
+
+                    numCards += 2; 
+                    cardsToPlay.Clear();
+                    DrawMultipleCards((byte)numCards);
+                    return;
+                }
+            }
+
+            if (deck.GetPlayDeckTopCard().GetValue() == 13 && deck.GetPlayDeckTopCard().GetSuit() == 1 && kingCount > 0)
+            {
+                if (deck.FindCard(cardsToPlay[0]).GetValue() != 5 || deck.FindCard(cardsToPlay[0]).GetSuit() != 1)
+                {
+                    int numCards = kingCount * 5;
+
+                    RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
+                    PhotonNetwork.RaiseEvent(ResetTrickCount, 0, eventOptions, SendOptions.SendReliable);
+
+                    //numCards ;
+                    cardsToPlay.Clear();
+                    DrawMultipleCards((byte)numCards);
+                    return;
+                }
+            }
+
             //Checks if the first card matches the deck ie: can be played
             if (!deck.CheckCardMatch(cardsToPlay[0]))
             {
-                //Draw two cards for a mistake
+                //RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
+                //PhotonNetwork.RaiseEvent(ResetTrickCardList, 0, eventOptions, SendOptions.SendReliable);
+
                 cardsToPlay.Clear();
                 DrawMultipleCards(2);
                 return;
             }
-
             NetworkPlayCards();
         }
     }
