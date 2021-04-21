@@ -33,7 +33,7 @@ public class SpawnPlayers : MonoBehaviour
 
         if (canSpawn)
         {
-            PhotonNetwork.Instantiate(player.name, spawnPoints[point].transform.position, Quaternion.identity);
+            PhotonNetwork.Instantiate(player.name, spawnPoints[point].transform.position, spawnPoints[point].transform.rotation);
             foreach (Transform child in transform)
                 child.gameObject.SetActive(false);
         }

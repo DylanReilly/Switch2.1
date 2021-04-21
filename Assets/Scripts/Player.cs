@@ -9,6 +9,7 @@ using System.Linq;
 using System.Collections;
 using System.IO;
 using System;
+using Cinemachine;
 
 public class Player : MonoBehaviourPunCallbacks
 {
@@ -42,7 +43,7 @@ public class Player : MonoBehaviourPunCallbacks
     //Game objects
     Deck deck = null;
     PhotonView view = null;
-    Camera mainCamera = null;
+    public CinemachineVirtualCamera virtualCamera = null;
     TurnHandler turnHandler = null;
 
     byte twoCount = 0;
@@ -68,7 +69,6 @@ public class Player : MonoBehaviourPunCallbacks
     private void Start()
     {
         //Sets game objects
-        mainCamera = Camera.main;
         view = GetComponent<PhotonView>();
         hud = GameObject.FindWithTag("Hud").GetComponent<Canvas>();
         deck = GameObject.FindWithTag("Deck").GetComponent<Deck>();
@@ -318,6 +318,15 @@ public class Player : MonoBehaviourPunCallbacks
 
             StartCoroutine("ChangeScene");
         }
+        try 
+        {
+            SetCinemachineCamera();
+        }
+        catch(ArgumentOutOfRangeException)
+        {
+            Debug.Log("No player");
+        }
+        
     }
 
     //Adds or removes cards from play hand when selected
@@ -646,6 +655,18 @@ public class Player : MonoBehaviourPunCallbacks
                 myCards.Add(card.Key, card.Value);
             }
             UpdateCardUI();
+        }
+    }
+
+    public void SetCinemachineCamera()
+    {
+        if (turnHandler.GetCurrentPlayer() == view.ViewID)
+        {
+            virtualCamera.Priority = 1;
+        }
+        else 
+        {
+            virtualCamera.Priority = 0;
         }
     }
     #endregion
