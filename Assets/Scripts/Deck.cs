@@ -105,7 +105,6 @@ public class Deck : MonoBehaviour
         }
         return sSuit;
     }
-
     #endregion
 
     #region 3D deck handling
