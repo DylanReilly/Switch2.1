@@ -10,7 +10,7 @@ using System.Collections;
 using System.IO;
 using System;
 
-public class Player : MonoBehaviour
+public class Player : MonoBehaviourPunCallbacks
 {
     #region Member Variables
     //Containers
@@ -130,6 +130,15 @@ public class Player : MonoBehaviour
         //Unsubscribe from event
         PhotonNetwork.NetworkingClient.EventReceived -= HandlePhotonEvents;
         UICardHandler.cardSelected -= ChangeCardsToPlay;
+    }
+    #endregion
+
+    #region Network Overrides
+    public override void OnMasterClientSwitched(Photon.Realtime.Player newMasterClient)
+    {
+        //base.OnMasterClientSwitched(newMasterClient);
+        PhotonNetwork.Disconnect();
+        SceneManager.LoadScene("Scene_Loading");
     }
     #endregion
 
@@ -287,6 +296,7 @@ public class Player : MonoBehaviour
             }
         }
 
+        //------handle Game Over
         else if (photonEvent.Code == GameOverEventCode)
         {
             string winner = (string)photonEvent.CustomData;
@@ -638,6 +648,10 @@ public class Player : MonoBehaviour
             UpdateCardUI();
         }
     }
+    #endregion
+
+    #region Coroutines
+    //Fades the chatbox out after sending a message
     IEnumerator ChatBoxFade()
     {
         for (float ft = 1f; ft >= 0; ft -= 0.03f)
