@@ -1013,6 +1013,10 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5079217863823737703, guid: 0dfe996bb49a33f41b4f64fb01a6a746, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 249.99982
+      objectReference: {fileID: 0}
     - target: {fileID: 6108898704895333660, guid: 0dfe996bb49a33f41b4f64fb01a6a746, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -1975,10 +1979,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 4628518851581413179, guid: 581886c4e01b37249ba051636a919c91, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 5541393957115796310, guid: 581886c4e01b37249ba051636a919c91, type: 3}
       propertyPath: m_Pivot.x
       value: 0

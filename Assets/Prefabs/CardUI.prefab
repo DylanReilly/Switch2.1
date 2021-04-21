@@ -546,10 +546,10 @@ RectTransform:
   m_Father: {fileID: 7033256132339425737}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 1}
-  m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -500}
-  m_SizeDelta: {x: 423.45, y: 1000}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 249.71974, y: -1000}
+  m_SizeDelta: {x: 423.45, y: 2000}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7290201625730187575
 CanvasRenderer:
@@ -716,7 +716,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 9120231336099615939}
   m_Direction: 3
   m_Value: 1
-  m_Size: 0.3
+  m_Size: 0.15
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -739,7 +739,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &572215550295508281
 RectTransform:
   m_ObjectHideFlags: 0
@@ -758,7 +758,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 1575, y: 760}
+  m_AnchoredPosition: {x: 1634.8, y: 12}
   m_SizeDelta: {x: 350, y: 30}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!222 &6080447544692795018
@@ -2920,13 +2920,14 @@ GameObject:
   - component: {fileID: 33800507428712916}
   - component: {fileID: 5303072737710331198}
   - component: {fileID: 2115426200453519365}
+  - component: {fileID: 3662804450805444435}
   m_Layer: 5
   m_Name: SendButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &262777610271390791
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2944,7 +2945,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 844.2, y: 760}
+  m_AnchoredPosition: {x: 904, y: 12}
   m_SizeDelta: {x: 93, y: 30}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!222 &33800507428712916
@@ -3028,3 +3029,17 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &3662804450805444435
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8897706393275866756}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74c8da4f2dbcfdc49ac1121b2d122570, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sendButton: {fileID: 2115426200453519365}
+  textInput: {fileID: 1770921176953342157}

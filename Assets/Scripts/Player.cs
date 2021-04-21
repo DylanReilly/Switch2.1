@@ -52,6 +52,7 @@ public class Player : MonoBehaviour
     public const byte DrawStartCardsEventCode = 4;
     public const byte DealStartCardsLoopCode = 5;
     public const byte ResetTrickCount = 6;
+    public const byte UpdateGameLogEventCode = 7;
 
     public int GetSpawnPoint()
     {
@@ -109,6 +110,7 @@ public class Player : MonoBehaviour
 
         //Adds method calls to UI buttons
         drawCardsButton.onClick.AddListener(NetworkDrawCard);
+        drawCardsButton.onClick.AddListener(UpdateGameLog);
         playCardsButton.onClick.AddListener(TryPlayCard);
         sortCardsButton.onClick.AddListener(SortHand);
 
@@ -138,10 +140,6 @@ public class Player : MonoBehaviour
         {
             if (view.IsMine)
             {
-                string chatUpdate = "";
-                chatUpdate += turnHandler.GetCurrentPlayer().ToString();
-                chatUpdate += " played the ";
-
                 //Stores the number of each trick card where the number matters
                 byte[] cards = (byte[])photonEvent.CustomData;
 
@@ -154,7 +152,6 @@ public class Player : MonoBehaviour
                 foreach (byte id in cards)
                 {
                     Card card = deck.FindCard(id);
-                    chatUpdate += card.ToString();
                     switch (card.GetValue())
                     {
                         //Ace
@@ -213,20 +210,9 @@ public class Player : MonoBehaviour
                 }
                 #endregion
 
-                //Only let the player play cards if it is their turn
-                if (turnHandler.GetCurrentPlayer() == view.ViewID)
-                {
-                    playCardsButton.interactable = true;
-                }
-                else
-                {
-                    playCardsButton.interactable = false;
-                }
-
                 deck.PlayCard(cards);
-                
-                NetworkUpdateChatBox(chatUpdate);
             }
+            playCardsButton.interactable = false;
         }
 
         //------Drawing Cards
@@ -242,10 +228,6 @@ public class Player : MonoBehaviour
                 if ((int)photonEvent.CustomData == turnHandler.GetCurrentPlayer())
                 {
                     turnHandler.PlayerUseTurn();
-                    if (turnHandler.GetCurrentPlayer() == view.ViewID)
-                    {
-                        playCardsButton.interactable = true;
-                    }
                 }
             }
         }
@@ -285,6 +267,21 @@ public class Player : MonoBehaviour
             twoCount = 0;
             kingCount = 0;
         }
+
+        //------Update game log
+        else if (photonEvent.Code == UpdateGameLogEventCode)
+        {
+            if (view.IsMine)
+            {
+                string message = (string)photonEvent.CustomData;
+                StopCoroutine("ChatBoxFade");
+                chatBox.GetComponent<CanvasGroup>().alpha = 1;
+
+                chatBoxText.text += "\n";
+                chatBoxText.text += message;
+                StartCoroutine("ChatBoxFade");
+            }
+        }
     }
 
     //Adds or removes cards from play hand when selected
@@ -306,6 +303,15 @@ public class Player : MonoBehaviour
             {
                 uiCards[card].GetComponentInChildren<Text>().text = (cardsToPlay.IndexOf(card) + 1).ToString();
             }
+
+            if (cardsToPlay.Count == 0)
+            {
+                playCardsButton.interactable = false;
+            }
+            else 
+            {
+                playCardsButton.interactable = true;
+            }
         }
     }
 
@@ -322,7 +328,7 @@ public class Player : MonoBehaviour
         content[0] = id;
         content[1] = suit;
 
-        NetworkUpdateChatBox(view.ViewID.ToString() + " changed the suit to " + deck.CheckSuit(suit));
+        NetworkUpdateChatBox(PhotonNetwork.NickName + " changed the suit to " + deck.CheckSuit(suit));
         view.RPC("SetAceSuit", RpcTarget.All, content);
     }
 
@@ -341,25 +347,27 @@ public class Player : MonoBehaviour
     //Checks if the cards are valid to play, if true plays card on the network
     public void TryPlayCard()
     {
-        if (view.IsMine)
+        if (view.IsMine && turnHandler.GetCurrentPlayer() == view.ViewID)
         {
+            RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
+
             //Check for 2s played into the player
             if (deck.GetPlayDeckTopCard().GetValue() == 2 && twoCount > 0)
-            {                
+            {
                 if (deck.FindCard(cardsToPlay[0]).GetValue() != 2)
                 {
                     int numCards = twoCount * 2;
 
-                    RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
                     PhotonNetwork.RaiseEvent(ResetTrickCount, 0, eventOptions, SendOptions.SendReliable);
 
-                    numCards += 2; 
+                    numCards += 2;
                     cardsToPlay.Clear();
                     DrawMultipleCards((byte)numCards);
 
-                    NetworkUpdateChatBox(view.ViewID.ToString() + " picked up " + numCards + " cards");
+                    NetworkUpdateChatBox("The quacks got to " + PhotonNetwork.NickName + " , " + numCards + " cards");
                     return;
                 }
+                NetworkUpdateChatBox("QUUAAAAAAACK!");
             }
 
             //Check for kings
@@ -369,13 +377,17 @@ public class Player : MonoBehaviour
                 {
                     int numCards = kingCount * 5;
 
-                    RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
                     PhotonNetwork.RaiseEvent(ResetTrickCount, 0, eventOptions, SendOptions.SendReliable);
 
                     cardsToPlay.Clear();
                     DrawMultipleCards((byte)numCards);
-                    NetworkUpdateChatBox(view.ViewID.ToString() + " failed to commit regicide");
+                    NetworkUpdateChatBox(PhotonNetwork.NickName + " failed to commit regicide");
                     return;
+                }
+                else if (deck.FindCard(cardsToPlay[0]).GetValue() == 5 && deck.FindCard(cardsToPlay[0]).GetSuit() == 1)
+                {
+                    PhotonNetwork.RaiseEvent(ResetTrickCount, 0, eventOptions, SendOptions.SendReliable);
+                    NetworkUpdateChatBox(PhotonNetwork.NickName + " is a King Slayer!");
                 }
             }
 
@@ -384,11 +396,25 @@ public class Player : MonoBehaviour
             {
                 cardsToPlay.Clear();
                 DrawMultipleCards(2);
-                NetworkUpdateChatBox(view.ViewID.ToString() + " should know better...2 cards");
+                NetworkUpdateChatBox(PhotonNetwork.NickName + " should know better...2 cards");
                 return;
             }
+
+            string message = PhotonNetwork.NickName + " ";
+            foreach (byte card in cardsToPlay)
+            {
+                message += deck.FindCard(card).ToString() + ", ";
+            }
+
+            NetworkUpdateChatBox(message);
             NetworkPlayCards();
         }
+        else if (view.IsMine)
+        {
+            NetworkUpdateChatBox(PhotonNetwork.NickName + " played out of turn, 2 cards!");
+            DrawMultipleCards(2);
+        }
+
     }
     #endregion
 
@@ -418,16 +444,36 @@ public class Player : MonoBehaviour
         if (view.IsMine)
         {
             cardsToPlay.Clear();
+            RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
+
+            //Check for twos
+            if (twoCount > 0)
+            {
+                int numCards = twoCount * 2;
+                NetworkUpdateChatBox(PhotonNetwork.NickName + " didn't believe enough and took " + numCards.ToString() + " cards");
+                PhotonNetwork.RaiseEvent(ResetTrickCount, 0, eventOptions, SendOptions.SendReliable);
+                twoCount = 0;
+                DrawMultipleCards((byte)numCards);
+                return;
+            }
+
+            //Check for kings
+            else if (kingCount > 0)
+            {
+                int numCards = kingCount * 2;
+                NetworkUpdateChatBox(PhotonNetwork.NickName + " couldn't commit regicide, " + numCards.ToString() + " cards");
+                PhotonNetwork.RaiseEvent(ResetTrickCount, 0, eventOptions, SendOptions.SendReliable);
+                kingCount = 0;
+                DrawMultipleCards((byte)numCards);
+                return;
+            }
 
             int content = view.ViewID;
-            RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
             PhotonNetwork.RaiseEvent(DrawCardEventCode, content, eventOptions, SendOptions.SendReliable);
 
             Card card = deck.DrawCard();
             myCards.Add(card.GetCardId(), card);
             UpdateCardUI();
-
-            playCardsButton.interactable = false;
         }
     }
 
@@ -436,7 +482,6 @@ public class Player : MonoBehaviour
     {
         if (PhotonNetwork.IsMasterClient && view.IsMine)
         {
-
             byte dummy = 0;
             RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
             PhotonNetwork.RaiseEvent(GameStartEventCode, dummy, eventOptions, SendOptions.SendReliable);
@@ -493,29 +538,25 @@ public class Player : MonoBehaviour
 
     private void NetworkUpdateChatBox(string message)
     {
-        view.RPC("UpdateChatBox", RpcTarget.All, message);
-    }
-
-    [PunRPC]
-    private void UpdateChatBox(string message)
-    {
-        if (view.IsMine)
-        {
-            chatBox.GetComponent<CanvasGroup>().alpha = 1;
-            chatBoxText.text += "\n";
-            chatBoxText.text += message;
-            StartCoroutine("ChatBoxFade");
-        }
+        RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
+        PhotonNetwork.RaiseEvent(UpdateGameLogEventCode, message, eventOptions, SendOptions.SendReliable);
     }
 
     IEnumerator ChatBoxFade()
     {
-        for (float ft = 1f; ft >= 0; ft -= 0.05f)
+        for (float ft = 1f; ft >= 0; ft -= 0.03f)
         {
             if (ft < 0.05) { ft = 0f; }
             chatBox.GetComponent<CanvasGroup>().alpha = ft;
             yield return new WaitForSeconds(.1f);
         }
+    }
+
+    public void UpdateGameLog()
+    {
+
+            NetworkUpdateChatBox(PhotonNetwork.NickName + " picked up");
+        
     }
 
     #endregion

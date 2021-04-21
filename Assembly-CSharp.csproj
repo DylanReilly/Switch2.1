@@ -68,8 +68,9 @@
     <Compile Include="Assets\Scripts\SpawnPoint.cs" />
     <Compile Include="Assets\Scripts\PhotonRegister.cs" />
     <Compile Include="Assets\Photon\PhotonLibs\WebSocket\WebSocket.cs" />
-    <Compile Include="Assets\Scripts\TurnHandler.cs" />
     <Compile Include="Assets\Scripts\MessageSender.cs" />
+    <Compile Include="Assets\Scripts\TurnHandler.cs" />
+    <Compile Include="Assets\Scripts\SetNickName.cs" />
   </ItemGroup>
   <ItemGroup>
      <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

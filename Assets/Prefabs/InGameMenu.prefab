@@ -392,6 +392,7 @@ GameObject:
   - component: {fileID: 3265103247564105575}
   - component: {fileID: 5803042094175405731}
   - component: {fileID: 4412241675526673906}
+  - component: {fileID: 6124605688081083074}
   m_Layer: 0
   m_Name: SpawnPointButton (5)
   m_TagString: Untagged
@@ -512,6 +513,31 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 6124605688081083074}
+        m_TargetAssemblyTypeName: SetNickName, Assembly-CSharp
+        m_MethodName: SetName
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &6124605688081083074
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1245302377931909276}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e54155cd7c4132f4c8338c220c9c5cd6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  stoolName: {fileID: 1068152617449785956}
 --- !u!1 &1477046283065808182
 GameObject:
   m_ObjectHideFlags: 0
@@ -674,6 +700,7 @@ GameObject:
   - component: {fileID: 368853476783212668}
   - component: {fileID: 5660322512950855742}
   - component: {fileID: 905035552701021135}
+  - component: {fileID: 6124605688081083072}
   m_Layer: 0
   m_Name: SpawnPointButton (6)
   m_TagString: Untagged
@@ -794,6 +821,31 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 6124605688081083072}
+        m_TargetAssemblyTypeName: SetNickName, Assembly-CSharp
+        m_MethodName: SetName
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &6124605688081083072
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2665619881942493191}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e54155cd7c4132f4c8338c220c9c5cd6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  stoolName: {fileID: 3833276876852332951}
 --- !u!1 &3564171890848182866
 GameObject:
   m_ObjectHideFlags: 0
@@ -1485,6 +1537,7 @@ GameObject:
   - component: {fileID: 5439208706107638447}
   - component: {fileID: 3978301588317713063}
   - component: {fileID: 7061547963138050463}
+  - component: {fileID: 6124605688081083073}
   m_Layer: 0
   m_Name: SpawnPointButton (7)
   m_TagString: Untagged
@@ -1605,6 +1658,31 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 6124605688081083073}
+        m_TargetAssemblyTypeName: SetNickName, Assembly-CSharp
+        m_MethodName: SetName
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &6124605688081083073
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6195666506114029784}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e54155cd7c4132f4c8338c220c9c5cd6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  stoolName: {fileID: 1004416570361779860}
 --- !u!1 &6235419761638591885
 GameObject:
   m_ObjectHideFlags: 0
@@ -1771,6 +1849,7 @@ GameObject:
   - component: {fileID: 4272083901379362401}
   - component: {fileID: 4768109157383927516}
   - component: {fileID: 5797060061266998704}
+  - component: {fileID: 6124605688081083076}
   m_Layer: 0
   m_Name: SpawnPointButton (3)
   m_TagString: Untagged
@@ -1891,6 +1970,31 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 6124605688081083076}
+        m_TargetAssemblyTypeName: SetNickName, Assembly-CSharp
+        m_MethodName: SetName
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &6124605688081083076
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6704478358151421795}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e54155cd7c4132f4c8338c220c9c5cd6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  stoolName: {fileID: 8129816787929731444}
 --- !u!1 &6832596884280733692
 GameObject:
   m_ObjectHideFlags: 0
@@ -1978,6 +2082,7 @@ GameObject:
   - component: {fileID: 6292755397484834196}
   - component: {fileID: 2376281446629420235}
   - component: {fileID: 5570638000819656783}
+  - component: {fileID: 6124605688081083077}
   m_Layer: 0
   m_Name: SpawnPointButton (2)
   m_TagString: Untagged
@@ -2098,6 +2203,31 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 6124605688081083077}
+        m_TargetAssemblyTypeName: SetNickName, Assembly-CSharp
+        m_MethodName: SetName
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &6124605688081083077
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6897784994204533612}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e54155cd7c4132f4c8338c220c9c5cd6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  stoolName: {fileID: 3289702533728495437}
 --- !u!1 &6940144680636553594
 GameObject:
   m_ObjectHideFlags: 0
@@ -2110,6 +2240,7 @@ GameObject:
   - component: {fileID: 1034405701406316921}
   - component: {fileID: 5961795067051204821}
   - component: {fileID: 1320766107310285668}
+  - component: {fileID: 6124605688081083071}
   m_Layer: 0
   m_Name: SpawnPointButton (8)
   m_TagString: Untagged
@@ -2230,6 +2361,31 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 6124605688081083071}
+        m_TargetAssemblyTypeName: SetNickName, Assembly-CSharp
+        m_MethodName: SetName
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &6124605688081083071
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6940144680636553594}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e54155cd7c4132f4c8338c220c9c5cd6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  stoolName: {fileID: 8097033854128170353}
 --- !u!1 &7057806686923550001
 GameObject:
   m_ObjectHideFlags: 0
@@ -2321,6 +2477,7 @@ GameObject:
   - component: {fileID: 6013740249551393854}
   - component: {fileID: 1644315989948080517}
   - component: {fileID: 3787574273343509299}
+  - component: {fileID: 6124605688081083078}
   m_Layer: 0
   m_Name: SpawnPointButton (1)
   m_TagString: Untagged
@@ -2441,6 +2598,31 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 6124605688081083078}
+        m_TargetAssemblyTypeName: SetNickName, Assembly-CSharp
+        m_MethodName: SetName
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &6124605688081083078
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7092863368319789870}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e54155cd7c4132f4c8338c220c9c5cd6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  stoolName: {fileID: 1285222196551072189}
 --- !u!1 &7446218839195029500
 GameObject:
   m_ObjectHideFlags: 0
@@ -2872,6 +3054,7 @@ GameObject:
   - component: {fileID: 8765174785728614662}
   - component: {fileID: 4746490533676707756}
   - component: {fileID: 6174745195565070619}
+  - component: {fileID: 6124605688081083075}
   m_Layer: 0
   m_Name: SpawnPointButton (4)
   m_TagString: Untagged
@@ -2992,6 +3175,31 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 6124605688081083075}
+        m_TargetAssemblyTypeName: SetNickName, Assembly-CSharp
+        m_MethodName: SetName
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &6124605688081083075
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9095500865301006919}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e54155cd7c4132f4c8338c220c9c5cd6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  stoolName: {fileID: 8595573107677381915}
 --- !u!1 &9116177315839171083
 GameObject:
   m_ObjectHideFlags: 0

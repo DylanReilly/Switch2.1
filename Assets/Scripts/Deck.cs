@@ -91,11 +91,11 @@ public class Deck : MonoBehaviour
                 break;
 
             case 3:
-                sSuit = "Spades";
+                sSuit = "Clubs";
                 break;
 
             case 4:
-                sSuit = "Clubs";
+                sSuit = "Spades";
                 break;
         }
         return sSuit;

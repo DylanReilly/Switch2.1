@@ -7,6 +7,4 @@ public class MessageSender : MonoBehaviour
 {
     public Button sendButton = null;
     public Text textInput = null;
-    
-
 }
