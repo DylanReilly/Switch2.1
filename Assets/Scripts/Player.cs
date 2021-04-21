@@ -1,11 +1,14 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using Photon.Realtime;
 using Photon.Pun;
 using ExitGames.Client.Photon;
 using System.Linq;
 using System.Collections;
+using System.IO;
+using System;
 
 public class Player : MonoBehaviour
 {
@@ -53,6 +56,7 @@ public class Player : MonoBehaviour
     public const byte DealStartCardsLoopCode = 5;
     public const byte ResetTrickCount = 6;
     public const byte UpdateGameLogEventCode = 7;
+    public const byte GameOverEventCode = 8;
 
     public int GetSpawnPoint()
     {
@@ -110,7 +114,7 @@ public class Player : MonoBehaviour
 
         //Adds method calls to UI buttons
         drawCardsButton.onClick.AddListener(NetworkDrawCard);
-        drawCardsButton.onClick.AddListener(UpdateGameLog);
+        drawCardsButton.onClick.AddListener(UpdateGameLogOnPickup);
         playCardsButton.onClick.AddListener(TryPlayCard);
         sortCardsButton.onClick.AddListener(SortHand);
 
@@ -282,6 +286,28 @@ public class Player : MonoBehaviour
                 StartCoroutine("ChatBoxFade");
             }
         }
+
+        else if (photonEvent.Code == GameOverEventCode)
+        {
+            string winner = (string)photonEvent.CustomData;
+            NetworkUpdateChatBox(winner + " is the winner!");
+
+            hud.gameObject.SetActive(false);
+
+            GameObject winnerScreen = GameObject.Find("WinnerScreen");
+            winnerScreen.GetComponent<CanvasGroup>().alpha = 1;
+            winnerScreen.GetComponentInChildren<Text>().text = winner + "\n is the winner!";
+
+            string path = "Assets/Resources/GameLog.txt";
+
+            StreamWriter writer = new StreamWriter(path, true);
+            writer.WriteLine(DateTime.Now.ToString());
+            writer.WriteLine(chatBoxText.text);
+            writer.WriteLine("----------------------------<  Game End  >----------------------------");
+            writer.Close();
+
+            StartCoroutine("ChangeScene");
+        }
     }
 
     //Adds or removes cards from play hand when selected
@@ -324,12 +350,15 @@ public class Player : MonoBehaviour
 
     public void SetAceSuitRPC(byte id, byte suit)
     {
-        byte[] content = new byte[2];
-        content[0] = id;
-        content[1] = suit;
+        if (view.IsMine)
+        {
+            byte[] content = new byte[2];
+            content[0] = id;
+            content[1] = suit;
 
-        NetworkUpdateChatBox(PhotonNetwork.NickName + " changed the suit to " + deck.CheckSuit(suit));
-        view.RPC("SetAceSuit", RpcTarget.All, content);
+            NetworkUpdateChatBox(PhotonNetwork.NickName + " changed the suit to " + deck.CheckSuit(suit));
+            view.RPC("SetAceSuit", RpcTarget.All, content);
+        }
     }
 
     //Used for adding multiple cards for mistakes, tricks or deals
@@ -381,7 +410,6 @@ public class Player : MonoBehaviour
 
                     cardsToPlay.Clear();
                     DrawMultipleCards((byte)numCards);
-                    NetworkUpdateChatBox(PhotonNetwork.NickName + " failed to commit regicide");
                     return;
                 }
                 else if (deck.FindCard(cardsToPlay[0]).GetValue() == 5 && deck.FindCard(cardsToPlay[0]).GetSuit() == 1)
@@ -434,6 +462,13 @@ public class Player : MonoBehaviour
                 myCards.Remove(cardId);
             }
             cardsToPlay.Clear();
+
+            //If the player is out of cards, game is over
+            if (myCards.Count == 0 && deck.GetPlayDeckCount() > 1)
+            {
+                PhotonNetwork.RaiseEvent(GameOverEventCode, PhotonNetwork.NickName, eventOptions, SendOptions.SendReliable);
+            }
+
             UpdateCardUI();
         }
     }
@@ -542,23 +577,13 @@ public class Player : MonoBehaviour
         PhotonNetwork.RaiseEvent(UpdateGameLogEventCode, message, eventOptions, SendOptions.SendReliable);
     }
 
-    IEnumerator ChatBoxFade()
+    public void UpdateGameLogOnPickup()
     {
-        for (float ft = 1f; ft >= 0; ft -= 0.03f)
+        if (view.IsMine && turnHandler.GetCurrentPlayer() == view.ViewID)
         {
-            if (ft < 0.05) { ft = 0f; }
-            chatBox.GetComponent<CanvasGroup>().alpha = ft;
-            yield return new WaitForSeconds(.1f);
+            NetworkUpdateChatBox(PhotonNetwork.NickName + " picked up");
         }
     }
-
-    public void UpdateGameLog()
-    {
-
-            NetworkUpdateChatBox(PhotonNetwork.NickName + " picked up");
-        
-    }
-
     #endregion
 
     #region UI
@@ -611,6 +636,30 @@ public class Player : MonoBehaviour
                 myCards.Add(card.Key, card.Value);
             }
             UpdateCardUI();
+        }
+    }
+    IEnumerator ChatBoxFade()
+    {
+        for (float ft = 1f; ft >= 0; ft -= 0.03f)
+        {
+            if (ft < 0.05) { ft = 0f; }
+            chatBox.GetComponent<CanvasGroup>().alpha = ft;
+            yield return new WaitForSeconds(.1f);
+        }
+    }
+
+    //Displays winner screen, disconnects from server and loads starting scene
+    IEnumerator ChangeScene()
+    {
+        for (float ft = 3f; ft >= 0; ft -= 1f)
+        {
+            if (ft < 1)
+            {
+                PhotonNetwork.Disconnect();
+                SceneManager.LoadScene("Scene_Loading");
+            }
+
+            yield return new WaitForSeconds(1f);
         }
     }
     #endregion

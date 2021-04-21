@@ -76,6 +76,11 @@ public class Deck : MonoBehaviour
         lookupDeck[id].SetSuit(suit);
     }
 
+    public int GetPlayDeckCount()
+    {
+        return playDeck.Count;
+    }
+
     public string CheckSuit(byte suit)
     {
         string sSuit = "";
