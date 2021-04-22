@@ -11,37 +11,22 @@ using System.IO;
 using System;
 using Cinemachine;
 
-public class Player : MonoBehaviourPunCallbacks
+public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
 {
     #region Member Variables
     //Containers
-    Dictionary<byte, Card> myCards = new Dictionary<byte, Card>();
-    Dictionary<byte, Image> uiCards = new Dictionary<byte, Image>();
-    [SerializeField] List<byte> cardsToPlay = new List<byte>();
+    public Dictionary<byte, Card> myCards = new Dictionary<byte, Card>();
+    public Dictionary<byte, Image> uiCards = new Dictionary<byte, Image>();
+    List<byte> cardsToPlay = new List<byte>();
     public Stack<Player> players = new Stack<Player>();
 
     //UI References
-    [SerializeField] private Image imagePrefab = null;
-    GameObject handStartPosition = null;
-    Button drawCardsButton = null;
-    Button playCardsButton = null;
+    public HudHandler playerHud = null;
     Button gameStartButton = null;
-    Button sortCardsButton = null;
-    Canvas hud = null;
     int spawnPoint = 0;
-    GameObject chatBox = null;
-    Text chatBoxText = null;
-
-
-    //Ace selection handlers
-    GameObject aceSuitSelection = null;
-    Button chooseHearts = null;
-    Button chooseDiamonds = null;
-    Button chooseSpades = null;
-    Button chooseClubs = null;
 
     //Game objects
-    Deck deck = null;
+    public Deck deck = null;
     PhotonView view = null;
     public CinemachineVirtualCamera virtualCamera = null;
     TurnHandler turnHandler = null;
@@ -70,55 +55,31 @@ public class Player : MonoBehaviourPunCallbacks
     {
         //Sets game objects
         view = GetComponent<PhotonView>();
-        hud = GameObject.FindWithTag("Hud").GetComponent<Canvas>();
         deck = GameObject.FindWithTag("Deck").GetComponent<Deck>();
         turnHandler = GameObject.Find("TurnHandler").GetComponent<TurnHandler>();
 
+        //Instantiate local hud
+        if (view.IsMine)
+        {
+            playerHud = Instantiate(playerHud);
+        }
 
-        //Sets all UI element references
-        handStartPosition = hud.transform.Find("HandStartPosition").gameObject;
-        drawCardsButton = hud.transform.Find("DrawCardsButton").GetComponent<Button>();
-        playCardsButton = hud.transform.Find("PlayCardsButton").GetComponent<Button>();
-        sortCardsButton = hud.transform.Find("SortCardsButton").GetComponent<Button>();
-        chatBox = hud.transform.Find("ChatBox").gameObject;
-        chatBoxText = chatBox.GetComponentInChildren<Text>();
-
-
+        //Sets game on button for host, sets waiting screen for clients
         if (PhotonNetwork.IsMasterClient)
         {
-            gameStartButton = hud.transform.Find("GameStartButton").GetComponent<Button>();
+            gameStartButton = playerHud.transform.Find("GameStartButton").GetComponent<Button>();
             gameStartButton.gameObject.SetActive(true);
             gameStartButton.onClick.AddListener(HostGameStart);
         }
         else
         {
-            gameStartButton = hud.transform.Find("GameStartWaitButton").GetComponent<Button>();
+            gameStartButton = playerHud.transform.Find("GameStartWaitButton").GetComponent<Button>();
             gameStartButton.gameObject.SetActive(true);
         }
 
-        #region Ace handling
-        //Sets ace selection buttons
-        aceSuitSelection = hud.transform.Find("AceSuitSelection").gameObject;
-        //Sets reference to each button
-        chooseHearts = aceSuitSelection.transform.Find("HeartsButton").GetComponent<Button>();
-        chooseDiamonds = aceSuitSelection.transform.Find("DiamondsButton").GetComponent<Button>();
-        chooseClubs = aceSuitSelection.transform.Find("ClubsButton").GetComponent<Button>();
-        chooseSpades = aceSuitSelection.transform.Find("SpadesButton").GetComponent<Button>();
-
-        //Sets method calls for each button
-        chooseHearts.onClick.AddListener(delegate { SetAceSuitRPC(deck.GetPlayDeckTopCard().GetCardId(), 1); });
-        chooseDiamonds.onClick.AddListener(delegate { SetAceSuitRPC(deck.GetPlayDeckTopCard().GetCardId(), 2); });
-        chooseClubs.onClick.AddListener(delegate { SetAceSuitRPC(deck.GetPlayDeckTopCard().GetCardId(), 3); });
-        chooseSpades.onClick.AddListener(delegate { SetAceSuitRPC(deck.GetPlayDeckTopCard().GetCardId(), 4); });
-        #endregion
-
-        //Adds method calls to UI buttons
-        drawCardsButton.onClick.AddListener(NetworkDrawCard);
-        drawCardsButton.onClick.AddListener(UpdateGameLogOnPickup);
-        playCardsButton.onClick.AddListener(TryPlayCard);
-        sortCardsButton.onClick.AddListener(SortHand);
-
-        //Subscribe to event
+        //Subscribe to events
+        playerHud.drawCardsEvent += NetworkDrawCard;
+        playerHud.playCardsEvent += TryPlayCard;
         PhotonNetwork.NetworkingClient.EventReceived += HandlePhotonEvents;
         UICardHandler.cardSelected += ChangeCardsToPlay;
 
@@ -139,6 +100,12 @@ public class Player : MonoBehaviourPunCallbacks
         //base.OnMasterClientSwitched(newMasterClient);
         PhotonNetwork.Disconnect();
         SceneManager.LoadScene("Scene_Loading");
+    }
+
+    //Sets the gameobject on instantiation
+    public void OnPhotonInstantiate(PhotonMessageInfo info)
+    {
+        info.Sender.TagObject = gameObject;
     }
     #endregion
 
@@ -213,7 +180,7 @@ public class Player : MonoBehaviourPunCallbacks
                 //Let player set ace value
                 if (trickCards[0] > 0 && turnHandler.GetCurrentPlayer() == view.ViewID)
                 {
-                    aceSuitSelection.GetComponent<CanvasGroup>().alpha = 1;
+                    playerHud.aceSelectionArea.GetComponent<CanvasGroup>().alpha = 1;
                 }
 
                 //Only use turn if jacks havn't reversed the order
@@ -225,7 +192,7 @@ public class Player : MonoBehaviourPunCallbacks
 
                 deck.PlayCard(cards);
             }
-            playCardsButton.interactable = false;
+            //playCardsButton.interactable = false;
         }
 
         //------Drawing Cards
@@ -250,8 +217,8 @@ public class Player : MonoBehaviourPunCallbacks
         {
             if (view.IsMine)
             {
-                drawCardsButton.interactable = true;
-                sortCardsButton.interactable = true;
+                playerHud.drawCardsButton.interactable = true;
+                playerHud.sortCardsButton.interactable = true;
                 gameStartButton.gameObject.SetActive(false);
                 turnHandler.AddPlayers();
             }
@@ -287,12 +254,7 @@ public class Player : MonoBehaviourPunCallbacks
             if (view.IsMine)
             {
                 string message = (string)photonEvent.CustomData;
-                StopCoroutine("ChatBoxFade");
-                chatBox.GetComponent<CanvasGroup>().alpha = 1;
-
-                chatBoxText.text += "\n";
-                chatBoxText.text += message;
-                StartCoroutine("ChatBoxFade");
+                playerHud.SendChatboxMessage(message);
             }
         }
 
@@ -302,17 +264,17 @@ public class Player : MonoBehaviourPunCallbacks
             string winner = (string)photonEvent.CustomData;
             NetworkUpdateChatBox(winner + " is the winner!");
 
-            hud.gameObject.SetActive(false);
+            playerHud.gameObject.SetActive(false);
 
             GameObject winnerScreen = GameObject.Find("WinnerScreen");
             winnerScreen.GetComponent<CanvasGroup>().alpha = 1;
             winnerScreen.GetComponentInChildren<Text>().text = winner + "\n is the winner!";
 
-            string path = "Assets/Resources/GameLog.txt";
+            string path = "GameLog.txt";
 
             StreamWriter writer = new StreamWriter(path, true);
             writer.WriteLine(DateTime.Now.ToString());
-            writer.WriteLine(chatBoxText.text);
+            writer.WriteLine(playerHud.chatBoxtext.text);
             writer.WriteLine("----------------------------<  Game End  >----------------------------");
             writer.Close();
 
@@ -324,7 +286,7 @@ public class Player : MonoBehaviourPunCallbacks
         }
         catch(ArgumentOutOfRangeException)
         {
-            Debug.Log("No player");
+            
         }
         
     }
@@ -349,25 +311,20 @@ public class Player : MonoBehaviourPunCallbacks
                 uiCards[card].GetComponentInChildren<Text>().text = (cardsToPlay.IndexOf(card) + 1).ToString();
             }
 
-            if (cardsToPlay.Count == 0)
+            if (cardsToPlay.Count > 0)
             {
-                playCardsButton.interactable = false;
-            }
-            else 
-            {
-                playCardsButton.interactable = true;
+                playerHud.playCardsButton.interactable = true;
             }
         }
     }
 
     [PunRPC]
-    public void SetAceSuit(byte[] content)
+    public void SetAceSuitRPC(byte[] content)
     {
         deck.SetAceSuit(content[0], content[1]);
-        aceSuitSelection.GetComponent<CanvasGroup>().alpha = 0;
     }
 
-    public void SetAceSuitRPC(byte id, byte suit)
+    public void SetAceSuit(byte id, byte suit)
     {
         if (view.IsMine)
         {
@@ -488,7 +445,7 @@ public class Player : MonoBehaviourPunCallbacks
                 PhotonNetwork.RaiseEvent(GameOverEventCode, PhotonNetwork.NickName, eventOptions, SendOptions.SendReliable);
             }
 
-            UpdateCardUI();
+            playerHud.UpdateCardUI();
         }
     }
 
@@ -527,7 +484,7 @@ public class Player : MonoBehaviourPunCallbacks
 
             Card card = deck.DrawCard();
             myCards.Add(card.GetCardId(), card);
-            UpdateCardUI();
+            playerHud.UpdateCardUI();
         }
     }
 
@@ -606,58 +563,6 @@ public class Player : MonoBehaviourPunCallbacks
     #endregion
 
     #region UI
-
-    public void UpdateCardUI()
-    {
-        int offset = 0;
-
-        //Destroys all cards to accomodate cards being removed
-        var cardList = GameObject.FindGameObjectsWithTag("UICard");
-        foreach (GameObject uiCard in cardList)
-        {
-            Destroy(uiCard);
-        }
-
-        //Removes all pairs so the dictionary can be re-populated below
-        uiCards.Clear();
-
-        foreach (KeyValuePair<byte, Card> card in myCards)
-        {
-            //Button imageInstance = Instantiate(imagePrefab);
-            Image imageInstance = Instantiate(imagePrefab);
-            imageInstance.transform.SetParent(handStartPosition.transform, false);
-            imageInstance.sprite = card.Value.GetCardSprite();
-            imageInstance.rectTransform.anchoredPosition += new Vector2(offset, 0);
-
-            uiCards.Add(card.Value.GetCardId(), imageInstance);
-
-            //Offset moves cards over so they aren't rendered on top of each other
-            offset += 50;
-        }
-    }
-
-    public void SortHand()
-    {
-        if (view.IsMine)
-        {
-            List<KeyValuePair<byte, Card>> myList = myCards.ToList();
-
-            myList.Sort(
-                delegate (KeyValuePair<byte, Card> pair1, KeyValuePair<byte, Card> pair2)
-                {
-                    return pair1.Value.GetValue().CompareTo(pair2.Value.GetValue());
-                }
-            );
-
-            myCards.Clear();
-            foreach (KeyValuePair<byte, Card> card in myList)
-            {
-                myCards.Add(card.Key, card.Value);
-            }
-            UpdateCardUI();
-        }
-    }
-
     public void SetCinemachineCamera()
     {
         if (turnHandler.GetCurrentPlayer() == view.ViewID)
@@ -672,17 +577,6 @@ public class Player : MonoBehaviourPunCallbacks
     #endregion
 
     #region Coroutines
-    //Fades the chatbox out after sending a message
-    IEnumerator ChatBoxFade()
-    {
-        for (float ft = 1f; ft >= 0; ft -= 0.03f)
-        {
-            if (ft < 0.05) { ft = 0f; }
-            chatBox.GetComponent<CanvasGroup>().alpha = ft;
-            yield return new WaitForSeconds(.1f);
-        }
-    }
-
     //Displays winner screen, disconnects from server and loads starting scene
     IEnumerator ChangeScene()
     {
