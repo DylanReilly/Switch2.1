@@ -9,13 +9,13 @@ public class Deck : MonoBehaviour
 {
     private Stack<Card> drawDeck = new Stack<Card>();
     private Stack<Card> playDeck = new Stack<Card>();
-    [SerializeField]List<Card> tempDraw = new List<Card>();
-    [SerializeField] List<Card> tempPlay = new List<Card>();
+    public GameObject drawDeckModel = null;
     private Dictionary<byte, Card> lookupDeck = new Dictionary<byte, Card>();
 
     public void Start()
     {
         LoadDeck();
+        SetDeckSize();
     }
 
     #region Playing/Drawing
@@ -41,12 +41,13 @@ public class Deck : MonoBehaviour
     public Card DrawCard()
     {
         Card card = drawDeck.Pop();
-        tempDraw.Remove(card);
 
         if (drawDeck.Count == 0)
         {
             FlipDeck();
         }
+
+        SetDeckSize();
 
         return card;
     }
@@ -56,7 +57,6 @@ public class Deck : MonoBehaviour
         foreach (byte cardId in cards)
         {
             playDeck.Push(lookupDeck[cardId]);
-            tempPlay.Add(lookupDeck[cardId]);
         }
         RenderCards(cards);
     }
@@ -125,14 +125,19 @@ public class Deck : MonoBehaviour
             }
 
             float xOffset = 0.0f;
-            float yOffset = 0.0f;
+            float rotationYOffset = 0.0f;
             foreach (byte cardId in cards)
             {
-                PhotonNetwork.Instantiate("Cards/CardInstances/" + lookupDeck[cardId].name, transform.position + new Vector3(xOffset, yOffset, 0), Quaternion.identity);
+                PhotonNetwork.Instantiate("Cards/CardInstances/" + lookupDeck[cardId].name, transform.position + new Vector3(xOffset, 0.01f, 0), Quaternion.Euler(0, rotationYOffset, -1));
                 xOffset += 0.05f;
-                yOffset += 0.001f;
+                rotationYOffset += 5f;
             }
         }
+    }
+
+    private void SetDeckSize()
+    { 
+        drawDeckModel.transform.localPosition = new Vector3(drawDeckModel.transform.localPosition.x, ((float)drawDeck.Count / (float)52) - 0.5f, drawDeckModel.transform.localPosition.z);
     }
     #endregion
 
@@ -141,18 +146,14 @@ public class Deck : MonoBehaviour
     private void FlipDeck()
     {
         Card topCard = playDeck.Pop();
-        tempPlay.Remove(topCard);
 
         while (playDeck.Count > 0)
         {
             Card card = playDeck.Pop();
-            tempPlay.Remove(card);
             drawDeck.Push(card);
-            tempDraw.Add(card);
         }
         
         playDeck.Push(topCard);
-        tempPlay.Add(topCard);
     }
 
     //Checks the card of cardId to see if it can be played on the deck
@@ -213,7 +214,6 @@ public class Deck : MonoBehaviour
             //Generic list of type Card
             drawDeck.Push(card);
             lookupDeck.Add(card.GetCardId(), card);
-            tempDraw.Add(card);
         }
     }
     #endregion
