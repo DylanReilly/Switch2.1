@@ -29,4 +29,9 @@ public class MainMenu : MonoBehaviourPunCallbacks
         //Changes scene for all players
         PhotonNetwork.LoadLevel("Scene_Map_Shed");
     }
+
+    public void QuitGame()
+    {
+        Application.Quit();
+    }
 }

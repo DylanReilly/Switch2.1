@@ -547,7 +547,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
         }
     }
 
-    private void NetworkUpdateChatBox(string message)
+    public void NetworkUpdateChatBox(string message)
     {
         RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
         PhotonNetwork.RaiseEvent(UpdateGameLogEventCode, message, eventOptions, SendOptions.SendReliable);

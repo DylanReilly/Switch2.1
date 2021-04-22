@@ -27,6 +27,10 @@ public class HudHandler : MonoBehaviour
     public event Action drawCardsEvent;
     public event Action playCardsEvent;
 
+    //Message Handling
+    public InputField textInput = null;
+    public Button sendButton = null;
+
     // Start is called before the first frame update
     public void Start()
     {
@@ -71,6 +75,13 @@ public class HudHandler : MonoBehaviour
         chatBoxtext.text += "\n";
         chatBoxtext.text += message;
         StartCoroutine("ChatBoxFade");
+    }
+
+    public void SendTextMessage()
+    {
+        string message = PhotonNetwork.NickName + ": " + textInput.text;
+        player.NetworkUpdateChatBox(message);
+        textInput.text = "";
     }
 
     IEnumerator ChatBoxFade()
