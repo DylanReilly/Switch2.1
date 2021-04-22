@@ -71,6 +71,10 @@
     <Compile Include="Assets\Photon\PhotonLibs\WebSocket\WebSocket.cs" />
     <Compile Include="Assets\Scripts\TurnHandler.cs" />
     <Compile Include="Assets\Scripts\HudHandler.cs" />
+    <Compile Include="Assets\Scripts\FPSCounter.cs" />
+    <Compile Include="Assets\Scripts\PerformanceSettings.cs" />
+    <Compile Include="Assets\Scripts\EasyInsult.cs" />
+    <Compile Include="Assets\Scripts\EasyInsultToggle.cs" />
   </ItemGroup>
   <ItemGroup>
      <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

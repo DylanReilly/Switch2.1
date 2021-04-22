@@ -192,7 +192,6 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
 
                 deck.PlayCard(cards);
             }
-            //playCardsButton.interactable = false;
         }
 
         //------Drawing Cards
@@ -322,6 +321,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
     public void SetAceSuitRPC(byte[] content)
     {
         deck.SetAceSuit(content[0], content[1]);
+        NetworkUpdateChatBox(PhotonNetwork.NickName + " changed the suit to " + deck.CheckSuit(content[1]));
     }
 
     public void SetAceSuit(byte id, byte suit)
@@ -332,8 +332,8 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
             content[0] = id;
             content[1] = suit;
 
-            NetworkUpdateChatBox(PhotonNetwork.NickName + " changed the suit to " + deck.CheckSuit(suit));
-            view.RPC("SetAceSuit", RpcTarget.All, content);
+            //NetworkUpdateChatBox(PhotonNetwork.NickName + " changed the suit to " + deck.CheckSuit(suit));
+            view.RPC("SetAceSuitRPC", RpcTarget.All, content);
         }
     }
 
@@ -461,7 +461,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
             if (twoCount > 0)
             {
                 int numCards = twoCount * 2;
-                NetworkUpdateChatBox(PhotonNetwork.NickName + " didn't believe enough and took " + numCards.ToString() + " cards");
+                NetworkUpdateChatBox(PhotonNetwork.NickName + " took " + numCards.ToString() + " cards");
                 PhotonNetwork.RaiseEvent(ResetTrickCount, 0, eventOptions, SendOptions.SendReliable);
                 twoCount = 0;
                 DrawMultipleCards((byte)numCards);
@@ -482,6 +482,18 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
             int content = view.ViewID;
             PhotonNetwork.RaiseEvent(DrawCardEventCode, content, eventOptions, SendOptions.SendReliable);
 
+            
+            if (deck.GetPlayDeckCount() > 1)
+            {
+                
+                if (turnHandler.GetCurrentPlayer() == view.ViewID)
+                {
+                    NetworkUpdateChatBox(PhotonNetwork.NickName + " picked up");
+                }
+            }
+
+            
+            
             Card card = deck.DrawCard();
             myCards.Add(card.GetCardId(), card);
             playerHud.UpdateCardUI();
@@ -551,14 +563,6 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
     {
         RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
         PhotonNetwork.RaiseEvent(UpdateGameLogEventCode, message, eventOptions, SendOptions.SendReliable);
-    }
-
-    public void UpdateGameLogOnPickup()
-    {
-        if (view.IsMine && turnHandler.GetCurrentPlayer() == view.ViewID)
-        {
-            NetworkUpdateChatBox(PhotonNetwork.NickName + " picked up");
-        }
     }
     #endregion
 

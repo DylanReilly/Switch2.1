@@ -11,6 +11,8 @@ public class HudHandler : MonoBehaviour
 {
     public Player player = null;
     public Image imagePrefab = null;
+    public EasyInsultToggle easyInsultToggle = null;
+    public GameObject EasyInsultBox = null;
 
     //GameObjects
     public GameObject handStartPosition = null;
@@ -26,6 +28,7 @@ public class HudHandler : MonoBehaviour
     //Events
     public event Action drawCardsEvent;
     public event Action playCardsEvent;
+    public event Action hudSpawned;
 
     //Message Handling
     public InputField textInput = null;
@@ -42,6 +45,11 @@ public class HudHandler : MonoBehaviour
                 break;
             }
         }
+
+        easyInsultToggle = GameObject.Find("InGameMenu").GetComponent<EasyInsultToggle>();
+        easyInsultToggle.easyInsultBox = EasyInsultBox;
+
+        hudSpawned?.Invoke();
     }
 
     #region Button Events
@@ -82,6 +90,11 @@ public class HudHandler : MonoBehaviour
         string message = PhotonNetwork.NickName + ": " + textInput.text;
         player.NetworkUpdateChatBox(message);
         textInput.text = "";
+    }
+
+    public void SendTextMessage(string message)
+    {
+        player.NetworkUpdateChatBox(PhotonNetwork.NickName + ": " + message);
     }
 
     IEnumerator ChatBoxFade()
