@@ -56,25 +56,26 @@
     <Analyzer Include="C:\Program Files (x86)\Microsoft Visual Studio Tools for Unity\16.0\Analyzers\Microsoft.Unity.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Scripts\Card.cs" />
-    <Compile Include="Assets\Scripts\Player.cs" />
-    <Compile Include="Assets\Scripts\Deck.cs" />
-    <Compile Include="Assets\Scripts\UICardHandler.cs" />
+    <Compile Include="Assets\Scripts\UI\EasyInsult.cs" />
+    <Compile Include="Assets\Scripts\Gameplay\Card.cs" />
+    <Compile Include="Assets\Scripts\UI\FPSCounter.cs" />
+    <Compile Include="Assets\Scripts\Menus\PerformanceSettings.cs" />
+    <Compile Include="Assets\Scripts\UI\HudHandler.cs" />
+    <Compile Include="Assets\Scripts\Gameplay\Player.cs" />
+    <Compile Include="Assets\Scripts\Gameplay\Deck.cs" />
+    <Compile Include="Assets\Scripts\UI\UICardHandler.cs" />
+    <Compile Include="Assets\Scripts\Menus\EasyInsultToggle.cs" />
     <Compile Include="Assets\Scripts\Menus\ConnectToServer.cs" />
-    <Compile Include="Assets\Scripts\SpawnPlayers.cs" />
+    <Compile Include="Assets\Scripts\Gameplay\SpawnPlayers.cs" />
     <Compile Include="Assets\Photon\PhotonLibs\WebSocket\SocketWebTcp.cs" />
-    <Compile Include="Assets\Scripts\Menus\MainMenu.cs" />
-    <Compile Include="Assets\Scripts\SpawnPoint.cs" />
-    <Compile Include="Assets\Scripts\SetNickName.cs" />
-    <Compile Include="Assets\Scripts\PauseMenu.cs" />
-    <Compile Include="Assets\Scripts\PhotonRegister.cs" />
+    <Compile Include="Assets\Scripts\Menus\JoinMenu.cs" />
+    <Compile Include="Assets\Scripts\Gameplay\SpawnPoint.cs" />
+    <Compile Include="Assets\Scripts\Gameplay\SetNickName.cs" />
+    <Compile Include="Assets\Scripts\Menus\PauseMenu.cs" />
+    <Compile Include="Assets\Scripts\Gameplay\PhotonRegister.cs" />
     <Compile Include="Assets\Photon\PhotonLibs\WebSocket\WebSocket.cs" />
-    <Compile Include="Assets\Scripts\TurnHandler.cs" />
-    <Compile Include="Assets\Scripts\HudHandler.cs" />
-    <Compile Include="Assets\Scripts\FPSCounter.cs" />
-    <Compile Include="Assets\Scripts\PerformanceSettings.cs" />
-    <Compile Include="Assets\Scripts\EasyInsult.cs" />
-    <Compile Include="Assets\Scripts\EasyInsultToggle.cs" />
+    <Compile Include="Assets\Scripts\Gameplay\TurnHandler.cs" />
+    <Compile Include="Assets\Scripts\Menus\MainMenu.cs" />
   </ItemGroup>
   <ItemGroup>
      <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />
