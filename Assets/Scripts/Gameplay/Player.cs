@@ -97,9 +97,8 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
     #region Network Overrides
     public override void OnMasterClientSwitched(Photon.Realtime.Player newMasterClient)
     {
-        //base.OnMasterClientSwitched(newMasterClient);
         PhotonNetwork.Disconnect();
-        SceneManager.LoadScene("Scene_Loading");
+        SceneManager.LoadScene("Scene_MainMenu");
     }
 
     //Sets the gameobject on instantiation
