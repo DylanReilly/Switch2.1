@@ -10,6 +10,7 @@ using System.Collections;
 using System.IO;
 using System;
 using Cinemachine;
+using Assets.SimpleAndroidNotifications;
 
 public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
 {
@@ -33,6 +34,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
 
     byte twoCount = 0;
     byte kingCount = 0;
+    bool hasKnocked = false;
 
     //Event Codes
     public const byte PlayCardEventCode = 1;
@@ -65,13 +67,13 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
         }
 
         //Sets game on button for host, sets waiting screen for clients
-        if (PhotonNetwork.IsMasterClient)
+        if (PhotonNetwork.IsMasterClient && view.IsMine)
         {
             gameStartButton = playerHud.transform.Find("GameStartButton").GetComponent<Button>();
             gameStartButton.gameObject.SetActive(true);
             gameStartButton.onClick.AddListener(HostGameStart);
         }
-        else
+        else if(view.IsMine)
         {
             gameStartButton = playerHud.transform.Find("GameStartWaitButton").GetComponent<Button>();
             gameStartButton.gameObject.SetActive(true);
@@ -95,6 +97,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
     #endregion
 
     #region Network Overrides
+    //Diconnects players when the host leaves, returning them to the Main Menu
     public override void OnMasterClientSwitched(Photon.Realtime.Player newMasterClient)
     {
         PhotonNetwork.Disconnect();
@@ -260,7 +263,6 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
         else if (photonEvent.Code == GameOverEventCode)
         {
             string winner = (string)photonEvent.CustomData;
-            NetworkUpdateChatBox(winner + " is the winner!");
 
             playerHud.gameObject.SetActive(false);
 
@@ -272,12 +274,13 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
 
             StreamWriter writer = new StreamWriter(path, true);
             writer.WriteLine(DateTime.Now.ToString());
-            writer.WriteLine(playerHud.chatBoxtext.text);
+            writer.WriteLine(playerHud.chatBoxText.GetComponent<Text>().text);
             writer.WriteLine("----------------------------<  Game End  >----------------------------");
             writer.Close();
 
             StartCoroutine("ChangeScene");
         }
+
         try 
         {
             SetCinemachineCamera();
@@ -286,7 +289,6 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
         {
             
         }
-        
     }
 
     //Adds or removes cards from play hand when selected
@@ -320,7 +322,10 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
     public void SetAceSuitRPC(byte[] content)
     {
         deck.SetAceSuit(content[0], content[1]);
-        NetworkUpdateChatBox(PhotonNetwork.NickName + " changed the suit to " + deck.CheckSuit(content[1]));
+        if (view.IsMine)
+        {
+            NetworkUpdateChatBox(PhotonNetwork.NickName + " changed the suit to " + deck.CheckSuit(content[1]));
+        }
     }
 
     public void SetAceSuit(byte id, byte suit)
@@ -331,7 +336,6 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
             content[0] = id;
             content[1] = suit;
 
-            //NetworkUpdateChatBox(PhotonNetwork.NickName + " changed the suit to " + deck.CheckSuit(suit));
             view.RPC("SetAceSuitRPC", RpcTarget.All, content);
         }
     }
@@ -351,6 +355,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
     //Checks if the cards are valid to play, if true plays card on the network
     public void TryPlayCard()
     {
+        //Check if the command came from me and its my turn
         if (view.IsMine && turnHandler.GetCurrentPlayer() == view.ViewID)
         {
             RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
@@ -371,12 +376,12 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
                     NetworkUpdateChatBox("The quacks got to " + PhotonNetwork.NickName + " , " + numCards + " cards");
                     return;
                 }
-                NetworkUpdateChatBox("QUUAAAAAAACK!");
             }
 
             //Check for kings
             if (deck.GetPlayDeckTopCard().GetValue() == 13 && deck.GetPlayDeckTopCard().GetSuit() == 1 && kingCount > 0)
             {
+                //If you dont play the 5 of hearts
                 if (deck.FindCard(cardsToPlay[0]).GetValue() != 5 || deck.FindCard(cardsToPlay[0]).GetSuit() != 1)
                 {
                     int numCards = kingCount * 5;
@@ -387,10 +392,22 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
                     DrawMultipleCards((byte)numCards);
                     return;
                 }
+                //If you do play the 5 of hearts
                 else if (deck.FindCard(cardsToPlay[0]).GetValue() == 5 && deck.FindCard(cardsToPlay[0]).GetSuit() == 1)
                 {
                     PhotonNetwork.RaiseEvent(ResetTrickCount, 0, eventOptions, SendOptions.SendReliable);
                     NetworkUpdateChatBox(PhotonNetwork.NickName + " is a King Slayer!");
+                }
+            }
+
+            //Check for last card
+            {
+                if (myCards.Count - cardsToPlay.Count == 0 && hasKnocked == false)
+                {
+                    cardsToPlay.Clear();
+                    DrawMultipleCards(2);
+                    NetworkUpdateChatBox(PhotonNetwork.NickName + " never called last card, 2 cards!");
+                    return;
                 }
             }
 
@@ -412,6 +429,8 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
             NetworkUpdateChatBox(message);
             NetworkPlayCards();
         }
+
+        //If its not my turn, take 2 cards
         else if (view.IsMine)
         {
             NetworkUpdateChatBox(PhotonNetwork.NickName + " played out of turn, 2 cards!");
@@ -425,6 +444,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
     //Sends event to all players to replace the top card with cardId "content"
     private void NetworkPlayCards()
     {
+        int cardCount = cardsToPlay.Count;
         byte[] content = cardsToPlay.ToArray();
         RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
         PhotonNetwork.RaiseEvent(PlayCardEventCode, content, eventOptions, SendOptions.SendReliable);
@@ -443,7 +463,6 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
             {
                 PhotonNetwork.RaiseEvent(GameOverEventCode, PhotonNetwork.NickName, eventOptions, SendOptions.SendReliable);
             }
-
             playerHud.UpdateCardUI();
         }
     }
@@ -453,6 +472,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
     {
         if (view.IsMine)
         {
+            hasKnocked = false;
             cardsToPlay.Clear();
             RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
 
@@ -470,7 +490,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
             //Check for kings
             else if (kingCount > 0)
             {
-                int numCards = kingCount * 2;
+                int numCards = kingCount * 5;
                 NetworkUpdateChatBox(PhotonNetwork.NickName + " couldn't commit regicide, " + numCards.ToString() + " cards");
                 PhotonNetwork.RaiseEvent(ResetTrickCount, 0, eventOptions, SendOptions.SendReliable);
                 kingCount = 0;
@@ -484,7 +504,6 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
             
             if (deck.GetPlayDeckCount() > 1)
             {
-                
                 if (turnHandler.GetCurrentPlayer() == view.ViewID)
                 {
                     NetworkUpdateChatBox(PhotonNetwork.NickName + " picked up");
@@ -563,6 +582,23 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
         RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
         PhotonNetwork.RaiseEvent(UpdateGameLogEventCode, message, eventOptions, SendOptions.SendReliable);
     }
+
+    public void CheckLastCardCall()
+    {
+        if (view.IsMine)
+        {
+            if (myCards.Count == 1)
+            {
+                hasKnocked = true;
+                NetworkUpdateChatBox(PhotonNetwork.NickName + ": *knock knock* Last Card");
+            }
+            else
+            {
+                DrawMultipleCards(2);
+                NetworkUpdateChatBox(PhotonNetwork.NickName + " knocked too early, two cards");
+            }
+        }
+    }
     #endregion
 
     #region UI
@@ -588,7 +624,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
             if (ft < 1)
             {
                 PhotonNetwork.Disconnect();
-                SceneManager.LoadScene("Scene_Loading");
+                SceneManager.LoadScene("Scene_MainMenu");
             }
 
             yield return new WaitForSeconds(1f);

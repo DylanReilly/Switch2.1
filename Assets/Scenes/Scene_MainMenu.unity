@@ -353,7 +353,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Find Game
+  m_Text: Matchmaking
 --- !u!222 &112314580
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -831,7 +831,7 @@ GameObject:
   - component: {fileID: 1558492191}
   - component: {fileID: 1558492190}
   m_Layer: 0
-  m_Name: FindGame
+  m_Name: ConnectToNetwork
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

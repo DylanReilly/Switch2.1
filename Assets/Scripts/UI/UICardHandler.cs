@@ -15,7 +15,7 @@ public class UICardHandler : MonoBehaviour
         Image image = gameObject.GetComponent<Image>();
         if (!isSelected)
         {
-            image.rectTransform.anchoredPosition += new Vector2(0, 50);
+            image.rectTransform.anchoredPosition = new Vector2(image.rectTransform.anchoredPosition.x, 50);
         }
     }
 
@@ -25,7 +25,7 @@ public class UICardHandler : MonoBehaviour
         Image image = gameObject.GetComponent<Image>();
         if (!isSelected)
         {
-            image.rectTransform.anchoredPosition -= new Vector2(0, 50);
+            image.rectTransform.anchoredPosition = new Vector2(image.rectTransform.anchoredPosition.x, 0);
         }
     }
 
@@ -43,11 +43,13 @@ public class UICardHandler : MonoBehaviour
         if (isSelected) 
         {
             isSelected = false;
+            image.rectTransform.anchoredPosition = new Vector2(image.rectTransform.anchoredPosition.x, 0);
             cardSelected?.Invoke(false, imageId);
         }
         else 
-        { 
+        {
             isSelected = true;
+            image.rectTransform.anchoredPosition = new Vector2(image.rectTransform.anchoredPosition.x, 50);
             cardSelected?.Invoke(true, imageId);
         }
     }

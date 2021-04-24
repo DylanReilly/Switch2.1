@@ -15,6 +15,4 @@ public class ConnectToServer : MonoBehaviourPunCallbacks
     {
         SceneManager.LoadScene("Scene_JoinMenu");
     }
-
-
 }

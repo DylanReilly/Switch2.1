@@ -1,4 +1,5 @@
 ﻿
+using Assets.SimpleAndroidNotifications;
 using Photon.Pun;
 using System;
 using System.Collections;
@@ -17,7 +18,7 @@ public class HudHandler : MonoBehaviour
     //GameObjects
     public GameObject handStartPosition = null;
     public GameObject chatBox = null;
-    public Text chatBoxtext = null;
+    public GameObject chatBoxText = null;
 
     //Buttons
     public Button sortCardsButton = null;
@@ -49,6 +50,14 @@ public class HudHandler : MonoBehaviour
         easyInsultToggle = GameObject.Find("InGameMenu").GetComponent<EasyInsultToggle>();
         easyInsultToggle.easyInsultBox = EasyInsultBox;
 
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            sortCardsButton.gameObject.GetComponent<RectTransform>().position += new Vector3(0, 55f, 0);
+            drawCardsButton.gameObject.GetComponent<RectTransform>().position += new Vector3(0, 55f, 0);
+            playCardsButton.gameObject.GetComponent<RectTransform>().position += new Vector3(0, 55f, 0);
+            imagePrefab.gameObject.GetComponent<RectTransform>().position += new Vector3(20f, 0, 0);
+        }
+
         hudSpawned?.Invoke();
     }
 
@@ -71,6 +80,11 @@ public class HudHandler : MonoBehaviour
         player.photonView.RPC("SetAceSuitRPC", RpcTarget.All, content);
         aceSelectionArea.GetComponent<CanvasGroup>().alpha = 0;
     }
+
+    public void CallLastCard()
+    {
+        player.CheckLastCardCall();
+    }
     #endregion
 
     #region Chatbox
@@ -80,8 +94,11 @@ public class HudHandler : MonoBehaviour
         StopCoroutine("ChatBoxFade");
         chatBox.GetComponent<CanvasGroup>().alpha = 1;
 
-        chatBoxtext.text += "\n";
-        chatBoxtext.text += message;
+        chatBoxText.GetComponent<Text>().text += "\n";
+        chatBoxText.GetComponent<Text>().text += message;
+
+        chatBoxText.GetComponent<RectTransform>().localPosition += new Vector3(0, 16, 0);
+
         StartCoroutine("ChatBoxFade");
     }
 
@@ -129,6 +146,11 @@ public class HudHandler : MonoBehaviour
             imageInstance.transform.SetParent(handStartPosition.transform, false);
             imageInstance.sprite = card.Value.GetCardSprite();
             imageInstance.rectTransform.anchoredPosition += new Vector2(offset, 0);
+
+            if(Application.platform == RuntimePlatform.Android)
+            {
+                imageInstance.rectTransform.localScale *= 1.5f;
+            }
 
             player.uiCards.Add(card.Value.GetCardId(), imageInstance);
 
