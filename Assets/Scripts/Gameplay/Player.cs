@@ -35,6 +35,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
     byte twoCount = 0;
     byte kingCount = 0;
     bool hasKnocked = false;
+    string firstWinner = null;
 
     //Event Codes
     public const byte PlayCardEventCode = 1;
@@ -45,6 +46,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
     public const byte ResetTrickCount = 6;
     public const byte UpdateGameLogEventCode = 7;
     public const byte GameOverEventCode = 8;
+    public const byte SetFirstWinnerEventCode = 9;
 
     public int GetSpawnPoint()
     {
@@ -243,6 +245,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
             DealStartCards();
         }
 
+        //------Set trick cards to be used
         else if (photonEvent.Code == ResetTrickCount)
         {
             twoCount = 0;
@@ -259,6 +262,12 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
             }
         }
 
+        //------Set first winner
+        else if (photonEvent.Code == SetFirstWinnerEventCode)
+        {
+            firstWinner = (string)photonEvent.CustomData;
+        }
+
         //------handle Game Over
         else if (photonEvent.Code == GameOverEventCode)
         {
@@ -268,20 +277,30 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
 
             GameObject winnerScreen = GameObject.Find("WinnerScreen");
             winnerScreen.GetComponent<CanvasGroup>().alpha = 1;
-            winnerScreen.GetComponentInChildren<Text>().text = winner + "\n is the winner!";
+            string winnerMessage;
+            if (firstWinner == winner)
+            {
+                winnerMessage = winnerScreen.GetComponentInChildren<Text>().text = winner + "\n is flawless!";
+            }
+            else 
+            {
+                winnerMessage = winnerScreen.GetComponentInChildren<Text>().text = winner + "\n is the winner!";
+            }
 
             string path = "GameLog.txt";
 
             StreamWriter writer = new StreamWriter(path, true);
             writer.WriteLine(DateTime.Now.ToString());
             writer.WriteLine(playerHud.chatBoxText.GetComponent<Text>().text);
+            writer.WriteLine(winnerMessage);
             writer.WriteLine("----------------------------<  Game End  >----------------------------");
             writer.Close();
 
             StartCoroutine("ChangeScene");
         }
 
-        try 
+        //------Cinemachine camera handling
+        try
         {
             SetCinemachineCamera();
         }
@@ -420,12 +439,19 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
                 return;
             }
 
-            string message = PhotonNetwork.NickName + " ";
-            foreach (byte card in cardsToPlay)
+            string message = PhotonNetwork.NickName + " played ";
+            if (cardsToPlay.Count < 4)
             {
-                message += deck.FindCard(card).ToString() + ", ";
+                foreach (byte card in cardsToPlay)
+                {
+                    message += deck.FindCard(card).ToString() + ", ";
+                }
             }
-
+            else 
+            {
+                message += "...a lot of cards";
+            }
+            
             NetworkUpdateChatBox(message);
             NetworkPlayCards();
         }
@@ -461,7 +487,16 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
             //If the player is out of cards, game is over
             if (myCards.Count == 0 && deck.GetPlayDeckCount() > 1)
             {
-                PhotonNetwork.RaiseEvent(GameOverEventCode, PhotonNetwork.NickName, eventOptions, SendOptions.SendReliable);
+                if (firstWinner == null)
+                {
+                    DrawMultipleCards(2);
+                    NetworkUpdateChatBox(PhotonNetwork.NickName + " is the first winner, 2 cards!");
+                    PhotonNetwork.RaiseEvent(SetFirstWinnerEventCode, PhotonNetwork.NickName, eventOptions, SendOptions.SendReliable);
+                }
+                else 
+                {
+                    PhotonNetwork.RaiseEvent(GameOverEventCode, PhotonNetwork.NickName, eventOptions, SendOptions.SendReliable);
+                } 
             }
             playerHud.UpdateCardUI();
         }

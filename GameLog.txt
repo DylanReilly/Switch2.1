@@ -112,3 +112,19 @@ Kev King of Diamonds ,
 ----------------------------< Game Start >----------------------------
 GAME ON!
 ----------------------------<  Game End  >----------------------------
+24/04/2021 16:18:50
+----------------------------< Game Start >----------------------------
+GAME ON!
+Dylan 9 of Diamonds , 10 of Clubs , King of Clubs , 5 of Spades , 
+Dylan: *knock knock* Last Card
+Dylan 3 of Spades , 
+Dylan picked up
+Dylan picked up
+Dylan is the first winner, 2 cards!
+Dylan Ace of Spades , 
+Dylan changed the suit to Spades
+Dylan: *knock knock* Last Card
+Dylan 7 of Spades , 
+Dylan
+ is flawless!
+----------------------------<  Game End  >----------------------------
