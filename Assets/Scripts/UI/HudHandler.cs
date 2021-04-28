@@ -24,12 +24,15 @@ public class HudHandler : MonoBehaviour
     public Button sortCardsButton = null;
     public Button drawCardsButton = null;
     public Button playCardsButton = null;
+    public Button believeButton = null;
+    public Button lastCardButton = null;
     public GameObject aceSelectionArea = null;
 
     //Events
     public event Action drawCardsEvent;
     public event Action playCardsEvent;
     public event Action hudSpawned;
+    public event Action believeEvent;
 
     //Message Handling
     public InputField textInput = null;
@@ -55,6 +58,7 @@ public class HudHandler : MonoBehaviour
             sortCardsButton.gameObject.GetComponent<RectTransform>().position += new Vector3(0, 55f, 0);
             drawCardsButton.gameObject.GetComponent<RectTransform>().position += new Vector3(0, 55f, 0);
             playCardsButton.gameObject.GetComponent<RectTransform>().position += new Vector3(0, 55f, 0);
+            believeButton.gameObject.GetComponent<RectTransform>().position += new Vector3(0, 55f, 0);
             imagePrefab.gameObject.GetComponent<RectTransform>().position += new Vector3(20f, 0, 0);
         }
 
@@ -70,6 +74,11 @@ public class HudHandler : MonoBehaviour
     public void PlayCardsEventCall()
     {
         playCardsEvent?.Invoke();
+    }
+
+    public void BelieveEvent()
+    {
+        believeEvent?.Invoke();
     }
 
     public void SetAceSuit(int suit)

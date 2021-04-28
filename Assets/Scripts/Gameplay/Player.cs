@@ -84,6 +84,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
         //Subscribe to events
         playerHud.drawCardsEvent += NetworkDrawCard;
         playerHud.playCardsEvent += TryPlayCard;
+        playerHud.believeEvent += BlindPlayCard;
         PhotonNetwork.NetworkingClient.EventReceived += HandlePhotonEvents;
         UICardHandler.cardSelected += ChangeCardsToPlay;
 
@@ -226,6 +227,8 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
 
                 playerHud.drawCardsButton.interactable = true;
                 playerHud.sortCardsButton.interactable = true;
+                playerHud.believeButton.interactable = true;
+                playerHud.lastCardButton.interactable = true;
                 gameStartButton.gameObject.SetActive(false);
 
                 turnHandler.AddPlayers();
@@ -469,6 +472,25 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
             DrawMultipleCards(2);
         }
 
+    }
+
+    public void BlindPlayCard()
+    {
+        if (view.IsMine)
+        {
+            NetworkUpdateChatBox(PhotonNetwork.NickName + " believes...");
+            cardsToPlay.Clear();
+
+            Card card = deck.DrawCard();
+            myCards.Add(card.GetCardId(), card);
+
+            int content = view.ViewID;
+            RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
+            PhotonNetwork.RaiseEvent(DrawCardEventCode, content, eventOptions, SendOptions.SendReliable);
+
+            cardsToPlay.Add(card.GetCardId());
+            TryPlayCard();
+        }
     }
     #endregion
 
