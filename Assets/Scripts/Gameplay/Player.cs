@@ -220,10 +220,16 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
         {
             if (view.IsMine)
             {
+                byte seed = (byte)photonEvent.CustomData;
+                deck.Shuffle(seed);
+                deck.PlayFirstCard();
+
                 playerHud.drawCardsButton.interactable = true;
                 playerHud.sortCardsButton.interactable = true;
                 gameStartButton.gameObject.SetActive(false);
+
                 turnHandler.AddPlayers();
+                //DealStartCards();
             }
         }
 
@@ -545,8 +551,6 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
                 }
             }
 
-            
-            
             Card card = deck.DrawCard();
             myCards.Add(card.GetCardId(), card);
             playerHud.UpdateCardUI();
@@ -556,19 +560,18 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
     //Enables all players UI, plays the first card on the deck and deals 5 cards to everyone
     public void HostGameStart()
     {
+        
+
         if (PhotonNetwork.IsMasterClient && view.IsMine)
         {
-            byte dummy = 0;
-            RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
-            PhotonNetwork.RaiseEvent(GameStartEventCode, dummy, eventOptions, SendOptions.SendReliable);
+            System.Random rand = new System.Random();
 
-            //Used to play the very first card of the game
-            NetworkDrawCard();
-            foreach (KeyValuePair<byte, Card> card in myCards)
-            {
-                cardsToPlay.Add(card.Key);
-            }
-            NetworkPlayCards();
+            //Generates a random number and sends in event to ensure all players use the same "random" order 
+            int num = rand.Next(0, 255);
+            byte seed = (byte)num;
+
+            RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
+            PhotonNetwork.RaiseEvent(GameStartEventCode, seed, eventOptions, SendOptions.SendReliable);
 
             //Creates a list of players viewID to later deal 5 cards each at start of game
             foreach (Player player in FindObjectsOfType<Player>())

@@ -8,6 +8,7 @@ using ExitGames.Client.Photon;
 public class Deck : MonoBehaviour
 {
     private Stack<Card> drawDeck = new Stack<Card>();
+    public List<Card> tempDrawDeck = new List<Card>();
     private Stack<Card> playDeck = new Stack<Card>();
     public GameObject drawDeckModel = null;
     private Dictionary<byte, Card> lookupDeck = new Dictionary<byte, Card>();
@@ -41,6 +42,7 @@ public class Deck : MonoBehaviour
     public Card DrawCard()
     {
         Card card = drawDeck.Pop();
+        tempDrawDeck.Remove(card);
 
         if (drawDeck.Count == 0)
         {
@@ -183,19 +185,28 @@ public class Deck : MonoBehaviour
     }
 
     //Used to shuffle the deck
-    public void Shuffle(UnityEngine.Object[] deck)
+    public void Shuffle(byte seed)
     {
-        UnityEngine.Object tempGO;
+        Card tempCard;
+        Card[] tempDeck = drawDeck.ToArray();
+        drawDeck.Clear();
+        tempDrawDeck.Clear();
 
         //Seed ensures all players have the same randomization
-        UnityEngine.Random.InitState(10);
+        UnityEngine.Random.InitState(seed);
 
-        for (int i = 0; i < deck.Length; i++)
+        for (int i = 0; i < tempDeck.Length; i++)
         {
-            int rnd = UnityEngine.Random.Range(0, deck.Length);
-            tempGO = deck[rnd];
-            deck[rnd] = deck[i];
-            deck[i] = tempGO;
+            int rnd = UnityEngine.Random.Range(0, tempDeck.Length);
+            tempCard = tempDeck[rnd];
+            tempDeck[rnd] = tempDeck[i];
+            tempDeck[i] = tempCard;
+        }
+
+        for(int i = 0; i < tempDeck.Length; i++)
+        {
+            drawDeck.Push(tempDeck[i]);
+            tempDrawDeck.Add(tempDeck[i]);
         }
     }
 
@@ -206,13 +217,14 @@ public class Deck : MonoBehaviour
         loadDeck = Resources.LoadAll("Cards/CardInstances", typeof(Card));
 
         //Shuffle the deck
-        Shuffle(loadDeck);
+        //Shuffle(loadDeck);
 
         //Push shuffled numbers onto stack
         foreach (Card card in loadDeck)
         {
             //Generic list of type Card
             drawDeck.Push(card);
+            tempDrawDeck.Add(card);
             lookupDeck.Add(card.GetCardId(), card);
         }
     }

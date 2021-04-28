@@ -128,3 +128,103 @@ Dylan 7 of Spades ,
 Dylan
  is flawless!
 ----------------------------<  Game End  >----------------------------
+28/04/2021 13:13:19
+----------------------------< Game Start >----------------------------
+GAME ON!
+Dylan played 8 of Spades , 
+Dylan played 8 of Diamonds , 
+Dylan played 4 of Diamonds , 
+Dylan played Ace of Spades , 
+Dylan changed the suit to Hearts
+Dylan: *knock knock* Last Card
+Dylan played 7 of Hearts , 
+Dylan picked up
+Dylan picked up
+Dylan picked up
+Dylan picked up
+Dylan never called last card, 2 cards!
+Dylan played 3 of Hearts , 
+Dylan played 2 of Hearts , 
+Dylan: *knock knock* Last Card
+Dylan played 2 of Clubs , 
+Dylan took 2 cards
+Dylan picked up
+Dylan picked up
+Dylan picked up
+Dylan is the first winner, 2 cards!
+Dylan played 6 of Clubs , 
+Dylan picked up
+Dylan played Queen of Clubs , 
+Dylan picked up
+Dylan played Jack of Clubs , 
+Dylan picked up
+Dylan picked up
+Dylan played Ace of Diamonds , 
+Dylan changed the suit to Spades
+Dylan picked up
+Dylan picked up
+Dylan should know better...2 cards
+Dylan played 5 of Spades , 
+Dylan played Ace of Hearts , 
+Dylan changed the suit to Diamonds
+Dylan played 9 of Diamonds , 
+Dylan played King of Diamonds , 
+Dylan: *knock knock* Last Card
+Dylan played 6 of Diamonds , 
+Dylan
+ is flawless!
+----------------------------<  Game End  >----------------------------
+28/04/2021 13:24:05
+----------------------------< Game Start >----------------------------
+GAME ON!
+Dylan played ...a lot of cards
+Dylan picked up
+Dylan picked up
+Dylan should know better...2 cards
+Dylan played ...a lot of cards
+Dylan picked up
+Dylan picked up
+Dylan picked up
+Dylan picked up
+Dylan picked up
+Dylan played ...a lot of cards
+Dylan changed the suit to Spades
+Dylan played ...a lot of cards
+Dylan played ...a lot of cards
+Dylan took 8 cards
+Dylan picked up
+Dylan picked up
+Dylan picked up
+Dylan picked up
+Dylan picked up
+Dylan picked up
+Dylan played ...a lot of cards
+Dylan played ...a lot of cards
+Dylan played ...a lot of cards
+Dylan played ...a lot of cards
+Dylan played ...a lot of cards
+Dylan played ...a lot of cards
+Dylan played ...a lot of cards
+Dylan couldn't commit regicide, 5 cards
+Dylan picked up
+Dylan picked up
+Dylan picked up
+Dylan picked up
+Dylan picked up
+Dylan picked up
+Dylan picked up
+Dylan played ...a lot of cards
+Dylan played ...a lot of cards
+Dylan played 7 of Spades , 7 of Hearts , 7 of Diamonds , 
+Dylan: *knock knock* Last Card
+Dylan played 7 of Diamonds , 
+Dylan picked up
+Dylan picked up
+Dylan is the first winner, 2 cards!
+Dylan played Ace of Spades , 
+Dylan changed the suit to Hearts
+Dylan: *knock knock* Last Card
+Dylan played Ace of Hearts , 
+Dylan
+ is flawless!
+----------------------------<  Game End  >----------------------------
