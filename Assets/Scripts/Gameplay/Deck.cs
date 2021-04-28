@@ -41,14 +41,13 @@ public class Deck : MonoBehaviour
 
     public Card DrawCard()
     {
-        Card card = drawDeck.Pop();
-        tempDrawDeck.Remove(card);
-
         if (drawDeck.Count == 0)
         {
             FlipDeck();
         }
 
+        Card card = drawDeck.Pop();
+        tempDrawDeck.Remove(card);
         SetDeckSize();
 
         return card;
@@ -138,8 +137,15 @@ public class Deck : MonoBehaviour
     }
 
     private void SetDeckSize()
-    { 
-        drawDeckModel.transform.localPosition = new Vector3(drawDeckModel.transform.localPosition.x, ((float)drawDeck.Count / (float)52) - 0.5f, drawDeckModel.transform.localPosition.z);
+    {
+        if (drawDeck.Count == 0)
+        {
+            drawDeckModel.transform.localPosition = new Vector3(drawDeckModel.transform.localPosition.x, -1.5f, drawDeckModel.transform.localPosition.z);
+        }
+        else 
+        {
+            drawDeckModel.transform.localPosition = new Vector3(drawDeckModel.transform.localPosition.x, ((float)drawDeck.Count / (float)104) - 1f, drawDeckModel.transform.localPosition.z);
+        }
     }
     #endregion
 

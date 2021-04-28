@@ -560,8 +560,6 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
     //Enables all players UI, plays the first card on the deck and deals 5 cards to everyone
     public void HostGameStart()
     {
-        
-
         if (PhotonNetwork.IsMasterClient && view.IsMine)
         {
             System.Random rand = new System.Random();
@@ -625,6 +623,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
     {
         if (view.IsMine)
         {
+            cardsToPlay.Clear();
             if (myCards.Count == 1)
             {
                 hasKnocked = true;

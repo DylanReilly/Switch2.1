@@ -69,6 +69,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -2192817717452858690, guid: 40c975838956dae4aabe2fac75875902, type: 3}
+      propertyPath: sceneViewId
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 244533855133718836, guid: 40c975838956dae4aabe2fac75875902, type: 3}
       propertyPath: id
       value: 23
@@ -88,7 +92,7 @@ PrefabInstance:
     - target: {fileID: 244533855133718836, guid: 40c975838956dae4aabe2fac75875902, type: 3}
       propertyPath: cardSprite
       value: 
-      objectReference: {fileID: 21300046, guid: 3924dd0449c173e4aa69d07bdb73d5ed, type: 3}
+      objectReference: {fileID: 21300000, guid: 9b64eaaf6f1383f45ab3d96e88d6d01e, type: 2}
     - target: {fileID: 1348619568912904483, guid: 40c975838956dae4aabe2fac75875902, type: 3}
       propertyPath: m_Name
       value: J_Diamonds Variant

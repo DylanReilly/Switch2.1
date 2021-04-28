@@ -36,7 +36,14 @@ public class UICardHandler : MonoBehaviour
         byte numSize = 1;
         if(image.sprite.name.Length > 14)
         {
-            numSize = 2;
+            if (image.sprite.name.Length > 15)
+            {
+                numSize = 3;
+            }
+            else
+            {
+                numSize = 2;
+            } 
         }
         byte imageId = byte.Parse(image.sprite.name.Substring(13, numSize));
 
