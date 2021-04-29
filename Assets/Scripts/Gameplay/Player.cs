@@ -47,6 +47,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
     public const byte UpdateGameLogEventCode = 7;
     public const byte GameOverEventCode = 8;
     public const byte SetFirstWinnerEventCode = 9;
+    public const byte BumgameEventCode = 10;
 
     public int GetSpawnPoint()
     {
@@ -87,6 +88,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
         playerHud.believeEvent += BlindPlayCard;
         PhotonNetwork.NetworkingClient.EventReceived += HandlePhotonEvents;
         UICardHandler.cardSelected += ChangeCardsToPlay;
+        deck.BumGame += BumGame;
 
         FindSpawnPoint();
     }
@@ -120,196 +122,195 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
     {
         byte eventCode = photonEvent.Code;
 
-        //------Playing Cards
-        if (eventCode == PlayCardEventCode)
+        switch (eventCode)
         {
-            if (view.IsMine)
-            {
-                //Stores the number of each trick card where the number matters
-                byte[] cards = (byte[])photonEvent.CustomData;
-
-                //A count of each trick card played
-                //Aces = index[0] 2s = index[2] | 8s = index[2] | Jacks = index[3] | Black Queens = index[4] | Kings of Hearts = index[5]
-                byte[] trickCards = new byte[6];
-
-                #region Trick Card reading
-                //Get a count of each trick card in the cards played
-                foreach (byte id in cards)
+            case 1:
+                //------Playing Cards
+                if (view.IsMine)
                 {
-                    Card card = deck.FindCard(id);
-                    switch (card.GetValue())
+                    //Stores the number of each trick card where the number matters
+                    byte[] cards = (byte[])photonEvent.CustomData;
+
+                    //A count of each trick card played
+                    //Aces = index[0] 2s = index[2] | 8s = index[2] | Jacks = index[3] | Black Queens = index[4] | Kings of Hearts = index[5]
+                    byte[] trickCards = new byte[6];
+
+                    #region Trick Card reading
+                    //Get a count of each trick card in the cards played
+                    foreach (byte id in cards)
                     {
-                        //Ace
-                        case 1:
-                            trickCards[0]++;
-                            break;
+                        Card card = deck.FindCard(id);
+                        switch (card.GetValue())
+                        {
+                            //Ace
+                            case 1:
+                                trickCards[0]++;
+                                break;
 
-                        //Twos
-                        case 2:
-                            trickCards[1]++;
-                            break;
+                            //Twos
+                            case 2:
+                                trickCards[1]++;
+                                break;
 
-                        //Eights
-                        case 8:
-                            turnHandler.PlayerUseTurn();
-                            trickCards[2]++;
-                            break;
+                            //Eights
+                            case 8:
+                                turnHandler.PlayerUseTurn();
+                                trickCards[2]++;
+                                break;
 
-                        //Jacks
-                        case 11:
-                            turnHandler.ReverseOrder();
-                            trickCards[3]++;
-                            break;
+                            //Jacks
+                            case 11:
+                                turnHandler.ReverseOrder();
+                                trickCards[3]++;
+                                break;
 
-                        //Black Queens
-                        case 12:
-                            if (card.GetSuit() == 3 || card.GetSuit() == 4)
-                            {
-                                trickCards[4]++;
-                            }
-                            break;
+                            //Black Queens
+                            case 12:
+                                if (card.GetSuit() == 3 || card.GetSuit() == 4)
+                                {
+                                    trickCards[4]++;
+                                }
+                                break;
 
-                        //King of Hearts
-                        case 13:
-                            if (card.GetSuit() == 1)
-                            {
-                                trickCards[5]++;
-                            }
-                            break;
+                            //King of Hearts
+                            case 13:
+                                if (card.GetSuit() == 1)
+                                {
+                                    trickCards[5]++;
+                                }
+                                break;
+                        }
+                    }
+
+                    twoCount += trickCards[1];
+                    kingCount += trickCards[5];
+
+                    //Let player set ace value
+                    if (trickCards[0] > 0 && turnHandler.GetCurrentPlayer() == view.ViewID)
+                    {
+                        playerHud.aceSelectionArea.GetComponent<CanvasGroup>().alpha = 1;
+                    }
+
+                    //Only use turn if jacks havn't reversed the order
+                    if (trickCards[3] % 2 == 0 || trickCards[3] == 0)
+                    {
+                        turnHandler.PlayerUseTurn();
+                    }
+                    #endregion
+
+                    deck.PlayCard(cards);
+                    playerHud.topCardPrompt.GetComponent<Image>().sprite = deck.GetPlayDeckTopCard().GetCardSprite();
+                }
+                break;
+
+            case 2:
+                //------Game Start
+                if (view.IsMine)
+                {
+                    byte seed = (byte)photonEvent.CustomData;
+                    deck.Shuffle(seed);
+                    deck.PlayFirstCard();
+
+                    playerHud.drawCardsButton.interactable = true;
+                    playerHud.sortCardsButton.interactable = true;
+                    playerHud.believeButton.interactable = true;
+                    playerHud.lastCardButton.interactable = true;
+                    gameStartButton.gameObject.SetActive(false);
+
+                    turnHandler.AddPlayers();
+                }
+                break;
+
+            case 3:
+                //------Drawing Cards
+                if (view.IsMine)
+                {
+                    if ((int)photonEvent.CustomData != view.ViewID)
+                    {
+                        Card card = deck.DrawCard();
+                    }
+
+                    if ((int)photonEvent.CustomData == turnHandler.GetCurrentPlayer())
+                    {
+                        turnHandler.PlayerUseTurn();
                     }
                 }
+                break;
 
-                twoCount += trickCards[1];
-                kingCount += trickCards[5];
-
-                //Let player set ace value
-                if (trickCards[0] > 0 && turnHandler.GetCurrentPlayer() == view.ViewID)
+            case 4:
+                //------Game Start Card Dealing
+                int eventViewID = (int)photonEvent.CustomData;
+                if (eventViewID == view.ViewID && view.IsMine)
                 {
-                    playerHud.aceSelectionArea.GetComponent<CanvasGroup>().alpha = 1;
+                    DrawMultipleCards(5);
+                    DealStartCardsLoop();
                 }
+                break;
 
-                //Only use turn if jacks havn't reversed the order
-                if (trickCards[3] % 2 == 0 || trickCards[3] == 0)
+            case 5:
+                //------Game Start Card Loop
+                DealStartCards();
+                break;
+
+            case 6:
+                //------Set trick cards to be used
+                twoCount = 0;
+                kingCount = 0;
+                break;
+
+            case 7:
+                //------Update game log
+                if (view.IsMine)
                 {
-                    turnHandler.PlayerUseTurn();
+                    string text = (string)photonEvent.CustomData;
+                    playerHud.SendChatboxMessage(text);
                 }
-                #endregion
+                break;
 
-                deck.PlayCard(cards);
-                playerHud.topCardPrompt.GetComponent<Image>().sprite = deck.GetPlayDeckTopCard().GetCardSprite();
-            }
-        }
+            case 8:
+                //------handle Game Over
+                string[] message = (string[])photonEvent.CustomData;
 
-        //------Drawing Cards
-        else if (eventCode == DrawCardEventCode)
-        {
-            if (view.IsMine)
-            {
-                if ((int)photonEvent.CustomData != view.ViewID)
+                playerHud.gameObject.SetActive(false);
+
+                GameObject winnerScreen = GameObject.Find("WinnerScreen");
+                winnerScreen.GetComponent<CanvasGroup>().alpha = 1;
+                string gameOverMessage;
+
+                if (message[1] == "Winner")
                 {
-                    Card card = deck.DrawCard();
+                    if (firstWinner == message[0])
+                    {
+                        gameOverMessage = winnerScreen.GetComponentInChildren<Text>().text = message[0] + "\n is flawless!";
+                    }
+                    else
+                    {
+                        gameOverMessage = winnerScreen.GetComponentInChildren<Text>().text = message[0] + "\n is the winner!";
+                    }
                 }
-
-                if ((int)photonEvent.CustomData == turnHandler.GetCurrentPlayer())
+                else 
                 {
-                    turnHandler.PlayerUseTurn();
-                }
-            }
+                    gameOverMessage = winnerScreen.GetComponentInChildren<Text>().text = message[0] + "\n ruined the game...";
+                }   
+
+                string path = "GameLog.txt";
+
+                StreamWriter writer = new StreamWriter(path, true);
+                writer.WriteLine(DateTime.Now.ToString());
+                writer.WriteLine(playerHud.chatBoxText.GetComponent<Text>().text);
+                writer.WriteLine(gameOverMessage);
+                writer.WriteLine("----------------------------<  Game End  >----------------------------");
+                writer.Close();
+
+                StartCoroutine("ChangeScene");
+                break;
+
+            case 9:
+                //------Set first winner
+                firstWinner = (string)photonEvent.CustomData;
+                break;
         }
-
-        //------Game Start
-        else if (photonEvent.Code == GameStartEventCode)
-        {
-            if (view.IsMine)
-            {
-                byte seed = (byte)photonEvent.CustomData;
-                deck.Shuffle(seed);
-                deck.PlayFirstCard();
-
-                playerHud.drawCardsButton.interactable = true;
-                playerHud.sortCardsButton.interactable = true;
-                playerHud.believeButton.interactable = true;
-                playerHud.lastCardButton.interactable = true;
-                gameStartButton.gameObject.SetActive(false);
-
-                turnHandler.AddPlayers();
-                //DealStartCards();
-            }
-        }
-
-        //------Game Start Card Dealing
-        else if (photonEvent.Code == DrawStartCardsEventCode)
-        {
-            int eventViewID = (int)photonEvent.CustomData;
-
-            if (eventViewID == view.ViewID && view.IsMine)
-            {
-                DrawMultipleCards(5);
-                DealStartCardsLoop();
-            }
-        }
-
-        //------Game Start Card Loop
-        else if (photonEvent.Code == DealStartCardsLoopCode)
-        {
-            DealStartCards();
-        }
-
-        //------Set trick cards to be used
-        else if (photonEvent.Code == ResetTrickCount)
-        {
-            twoCount = 0;
-            kingCount = 0;
-        }
-
-        //------Update game log
-        else if (photonEvent.Code == UpdateGameLogEventCode)
-        {
-            if (view.IsMine)
-            {
-                string message = (string)photonEvent.CustomData;
-                playerHud.SendChatboxMessage(message);
-            }
-        }
-
-        //------Set first winner
-        else if (photonEvent.Code == SetFirstWinnerEventCode)
-        {
-            firstWinner = (string)photonEvent.CustomData;
-        }
-
-        //------handle Game Over
-        else if (photonEvent.Code == GameOverEventCode)
-        {
-            string winner = (string)photonEvent.CustomData;
-
-            playerHud.gameObject.SetActive(false);
-
-            GameObject winnerScreen = GameObject.Find("WinnerScreen");
-            winnerScreen.GetComponent<CanvasGroup>().alpha = 1;
-            string winnerMessage;
-            if (firstWinner == winner)
-            {
-                winnerMessage = winnerScreen.GetComponentInChildren<Text>().text = winner + "\n is flawless!";
-            }
-            else 
-            {
-                winnerMessage = winnerScreen.GetComponentInChildren<Text>().text = winner + "\n is the winner!";
-            }
-
-            string path = "GameLog.txt";
-
-            StreamWriter writer = new StreamWriter(path, true);
-            writer.WriteLine(DateTime.Now.ToString());
-            writer.WriteLine(playerHud.chatBoxText.GetComponent<Text>().text);
-            writer.WriteLine(winnerMessage);
-            writer.WriteLine("----------------------------<  Game End  >----------------------------");
-            writer.Close();
-
-            StartCoroutine("ChangeScene");
-        }
-
-        //------Cinemachine camera handling
+        
         try
         {
             SetCinemachineCamera();
@@ -598,7 +599,11 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
                 }
                 else 
                 {
-                    PhotonNetwork.RaiseEvent(GameOverEventCode, PhotonNetwork.NickName, eventOptions, SendOptions.SendReliable);
+                    string[] message = new string[2];
+                    message[0] = PhotonNetwork.NickName;
+                    message[1] = "Winner";
+
+                    PhotonNetwork.RaiseEvent(GameOverEventCode, message, eventOptions, SendOptions.SendReliable);
                 } 
             }
             playerHud.UpdateCardUI();
@@ -732,6 +737,15 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
                 NetworkUpdateChatBox(PhotonNetwork.NickName + " knocked too early, two cards");
             }
         }
+    }
+
+    public void BumGame()
+    {
+        string[] message = new string[2];
+        message[0] = PhotonNetwork.NickName;
+        message[1] = "BumGame";
+        RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
+        PhotonNetwork.RaiseEvent(GameOverEventCode, message, eventOptions, SendOptions.SendReliable);
     }
     #endregion
 

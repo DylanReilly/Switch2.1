@@ -8,10 +8,11 @@ using ExitGames.Client.Photon;
 public class Deck : MonoBehaviour
 {
     private Stack<Card> drawDeck = new Stack<Card>();
-    public List<Card> tempDrawDeck = new List<Card>();
     private Stack<Card> playDeck = new Stack<Card>();
     public GameObject drawDeckModel = null;
     private Dictionary<byte, Card> lookupDeck = new Dictionary<byte, Card>();
+
+    public event Action BumGame;
 
     public void Start()
     {
@@ -41,13 +42,22 @@ public class Deck : MonoBehaviour
 
     public Card DrawCard()
     {
+        Card card;
         if (drawDeck.Count == 0)
         {
             FlipDeck();
         }
 
-        Card card = drawDeck.Pop();
-        tempDrawDeck.Remove(card);
+        try
+        {
+            card = drawDeck.Pop();
+        }
+        catch
+        {
+            BumGame?.Invoke();
+            card = lookupDeck[0];
+        }
+
         SetDeckSize();
 
         return card;
@@ -196,7 +206,6 @@ public class Deck : MonoBehaviour
         Card tempCard;
         Card[] tempDeck = drawDeck.ToArray();
         drawDeck.Clear();
-        tempDrawDeck.Clear();
 
         //Seed ensures all players have the same randomization
         UnityEngine.Random.InitState(seed);
@@ -212,7 +221,6 @@ public class Deck : MonoBehaviour
         for(int i = 0; i < tempDeck.Length; i++)
         {
             drawDeck.Push(tempDeck[i]);
-            tempDrawDeck.Add(tempDeck[i]);
         }
     }
 
@@ -230,7 +238,6 @@ public class Deck : MonoBehaviour
         {
             //Generic list of type Card
             drawDeck.Push(card);
-            tempDrawDeck.Add(card);
             lookupDeck.Add(card.GetCardId(), card);
         }
     }
