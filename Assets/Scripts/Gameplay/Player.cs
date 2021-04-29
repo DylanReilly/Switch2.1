@@ -325,25 +325,99 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
     {
         if (view.IsMine)
         {
+            //Add the card to the cards to play
             if (isPickup)
             {
-                cardsToPlay.Add(cardId);
+                //If hand is empty, add card
+                if (cardsToPlay.Count == 0)
+                {
+                    cardsToPlay.Add(cardId);
+                }
+                //Checks the last card in cards to play with the card to be selected
+                else if (CanSelectCard(cardsToPlay[cardsToPlay.Count - 1], cardId))
+                {
+                    cardsToPlay.Add(cardId);
+                }
+                else 
+                {
+                    cardsToPlay.Remove(cardId);
+                    uiCards[cardId].GetComponent<UICardHandler>().isSelected = false;
+                }
             }
+            //Remove the card from cards to play
             else
             {
                 cardsToPlay.Remove(cardId);
                 uiCards[cardId].GetComponentInChildren<Text>().text = null;
             }
+
+            //Render card order above each card
             foreach (byte card in cardsToPlay)
             {
                 uiCards[card].GetComponentInChildren<Text>().text = (cardsToPlay.IndexOf(card) + 1).ToString();
             }
 
+            //If the player has any cards selected, enable the play button
             if (cardsToPlay.Count > 0)
             {
                 playerHud.playCardsButton.interactable = true;
             }
         }
+    }
+
+    //Checks if the selected cards can be played on each other
+    public bool CanSelectCard(byte firstCardId, byte secondCardId)
+    {
+        Card firstCard = deck.FindCard(firstCardId);
+        Card secondCard = deck.FindCard(secondCardId);
+
+        //If cards have the same value ie: 2 10s, return true
+        if (firstCard.GetValue() == secondCard.GetValue())
+        {
+            return true;
+        }
+
+        //If the suits match...
+        if (firstCard.GetSuit() == secondCard.GetSuit())
+        {
+            //A jack can be played on an 8
+            if (firstCard.GetValue() == 8 && secondCard.GetValue() == 11)
+            {
+                return true;
+            }
+
+            //An 8 can be played on a jack
+            if (firstCard.GetValue() == 11 && secondCard.GetValue() == 8)
+            {
+                return true;
+            }
+
+            //An 2 or a king of hearts can be played on a 8
+            if (firstCard.GetValue() == 8 && (secondCard.GetValue() == 2 || (secondCard.GetValue() == 13 && secondCard.GetSuit() == 1)))
+            {
+                return true;
+            }
+
+            //An 2 or a king of hearts can be played on a jack
+            if (firstCard.GetValue() == 11 && (secondCard.GetValue() == 2 || (secondCard.GetValue() == 13 && secondCard.GetSuit() == 1)))
+            {
+                return true;
+            }
+
+            //A black queen can be played on an 8
+            if (firstCard.GetValue() == 8 && ((secondCard.GetValue() == 12 && secondCard.GetSuit() == 3) || (secondCard.GetValue() == 12 && secondCard.GetSuit() == 4)))
+            {
+                return true;
+            }
+
+            //A black queen can be played on a jack
+            if (firstCard.GetValue() == 11 && ((secondCard.GetValue() == 12 && secondCard.GetSuit() == 3) || (secondCard.GetValue() == 12 && secondCard.GetSuit() == 4)))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     [PunRPC]
