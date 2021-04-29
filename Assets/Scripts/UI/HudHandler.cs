@@ -12,8 +12,8 @@ public class HudHandler : MonoBehaviour
 {
     public Player player = null;
     public Image imagePrefab = null;
-    public EasyInsultToggle easyInsultToggle = null;
-    public GameObject EasyInsultBox = null;
+    public GameObject easyInsultBox = null;
+    public GameObject topCardPrompt = null;
 
     //GameObjects
     public GameObject handStartPosition = null;
@@ -50,8 +50,8 @@ public class HudHandler : MonoBehaviour
             }
         }
 
-        easyInsultToggle = GameObject.Find("InGameMenu").GetComponent<EasyInsultToggle>();
-        easyInsultToggle.easyInsultBox = EasyInsultBox;
+        GameObject.Find("InGameMenu").GetComponent<PauseMenu>().easyInsultBox = easyInsultBox;
+        GameObject.Find("InGameMenu").GetComponent<PauseMenu>().topCardPrompt = topCardPrompt;
 
         if (Application.platform == RuntimePlatform.Android)
         {

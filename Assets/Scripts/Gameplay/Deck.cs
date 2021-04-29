@@ -129,7 +129,7 @@ public class Deck : MonoBehaviour
             float rotationYOffset = 0.0f;
             foreach (byte cardId in cards)
             {
-                PhotonNetwork.Instantiate("Cards/CardInstances/" + lookupDeck[cardId].name, transform.position + new Vector3(xOffset, 0.01f, 0), Quaternion.Euler(0, rotationYOffset, -1));
+                PhotonNetwork.Instantiate("Cards/CardInstances/" + lookupDeck[cardId].name, transform.position + new Vector3(xOffset, 0.01f, 0), Quaternion.Euler(0, 30 + rotationYOffset, -1));
                 xOffset += 0.05f;
                 rotationYOffset += 5f;
             }

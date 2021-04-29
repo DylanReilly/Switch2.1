@@ -196,6 +196,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
                 #endregion
 
                 deck.PlayCard(cards);
+                playerHud.topCardPrompt.GetComponent<Image>().sprite = deck.GetPlayDeckTopCard().GetCardSprite();
             }
         }
 
