@@ -10,7 +10,6 @@ using System.Collections;
 using System.IO;
 using System;
 using Cinemachine;
-using Assets.SimpleAndroidNotifications;
 
 public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
 {
@@ -47,7 +46,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
     public const byte UpdateGameLogEventCode = 7;
     public const byte GameOverEventCode = 8;
     public const byte SetFirstWinnerEventCode = 9;
-    public const byte BumgameEventCode = 10;
+    public const byte BlindPlayEventCode = 10;
 
     public int GetSpawnPoint()
     {
@@ -309,6 +308,14 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
                 //------Set first winner
                 firstWinner = (string)photonEvent.CustomData;
                 break;
+
+            case 10:
+                //Blind play / belief button
+                if (view.IsMine)
+                {
+                    Card card = deck.DrawCard();
+                }
+                break;
         }
         
         try
@@ -562,7 +569,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
 
             int content = view.ViewID;
             RaiseEventOptions eventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
-            PhotonNetwork.RaiseEvent(DrawCardEventCode, content, eventOptions, SendOptions.SendReliable);
+            PhotonNetwork.RaiseEvent(BlindPlayEventCode, content, eventOptions, SendOptions.SendReliable);
 
             cardsToPlay.Add(card.GetCardId());
             TryPlayCard();
