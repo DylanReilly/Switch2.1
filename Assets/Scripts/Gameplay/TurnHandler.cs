@@ -37,8 +37,10 @@ public class TurnHandler : MonoBehaviour
     public void PlayerUseTurn()
     {
         Player player = playerQueue[0];
+        player.SetCinemachineCamera(0);
         playerQueue.Remove(player);
         playerQueue.Add(player);
+        playerQueue[0].SetCinemachineCamera(1);
     }
 
     public int GetCurrentPlayer()

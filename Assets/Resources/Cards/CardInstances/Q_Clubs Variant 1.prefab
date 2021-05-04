@@ -55,6 +55,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2300000, guid: 7c136c05643fc4149a3fadaf4b863e7b, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 2279ae9a49789f54f8a5e276ca121409, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7c136c05643fc4149a3fadaf4b863e7b, type: 3}
 --- !u!1 &3606676014680854414 stripped
@@ -92,7 +96,7 @@ PrefabInstance:
     - target: {fileID: 244533855133718836, guid: 40c975838956dae4aabe2fac75875902, type: 3}
       propertyPath: cardSprite
       value: 
-      objectReference: {fileID: 21300000, guid: b99656c83bddbb24d9253542b0161775, type: 2}
+      objectReference: {fileID: 21300000, guid: de798646ca2cfab4c9172bcac66d8430, type: 3}
     - target: {fileID: 1348619568912904483, guid: 40c975838956dae4aabe2fac75875902, type: 3}
       propertyPath: m_Name
       value: Q_Clubs Variant 1

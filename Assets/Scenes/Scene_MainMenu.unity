@@ -1208,6 +1208,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1591244835}
     m_Modifications:
+    - target: {fileID: 1933963961, guid: 9fb4a3ce7f444734eb38a2280240fa29, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 160
+      objectReference: {fileID: 0}
+    - target: {fileID: 1933963962, guid: 9fb4a3ce7f444734eb38a2280240fa29, type: 3}
+      propertyPath: m_Text
+      value: Opening the gates...
+      objectReference: {fileID: 0}
     - target: {fileID: 4312051402217628656, guid: 9fb4a3ce7f444734eb38a2280240fa29, type: 3}
       propertyPath: m_RootOrder
       value: 0

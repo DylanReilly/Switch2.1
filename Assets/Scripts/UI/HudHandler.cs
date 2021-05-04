@@ -65,6 +65,14 @@ public class HudHandler : MonoBehaviour
         hudSpawned?.Invoke();
     }
 
+    public void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Return))
+        {
+            SendTextMessage();
+        }
+    }
+
     #region Button Events
     public void DrawCardsEventCall()
     {
@@ -113,14 +121,21 @@ public class HudHandler : MonoBehaviour
 
     public void SendTextMessage()
     {
-        string message = PhotonNetwork.NickName + ": " + textInput.text;
+        string message = "<color=green>" + PhotonNetwork.NickName + "</color>" + " " + textInput.text;
+        //Limits the size of messages to not overload the chat
+        if (message.Length > 40)
+        {
+            message = message.Substring(0, 40);
+        }
+        
         player.NetworkUpdateChatBox(message);
         textInput.text = "";
     }
 
     public void SendTextMessage(string message)
     {
-        player.NetworkUpdateChatBox(PhotonNetwork.NickName + ": " + message);
+        message = "<color=green>" + PhotonNetwork.NickName + "</color>" + " " + message;
+        player.NetworkUpdateChatBox(message);
     }
 
     IEnumerator ChatBoxFade()
