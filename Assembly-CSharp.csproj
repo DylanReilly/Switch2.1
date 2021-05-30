@@ -64,15 +64,11 @@
     <Compile Include="Assets\Scripts\Gameplay\Player.cs" />
     <Compile Include="Assets\Scripts\Gameplay\Deck.cs" />
     <Compile Include="Assets\Scripts\UI\UICardHandler.cs" />
-    <Compile Include="Assets\SimpleAndroidNotifications\NotificationManager.cs" />
-    <Compile Include="Assets\SimpleAndroidNotifications\NotificationExample.cs" />
     <Compile Include="Assets\Scripts\Gameplay\Lights.cs" />
     <Compile Include="Assets\Scripts\Menus\ConnectToServer.cs" />
     <Compile Include="Assets\Scripts\Gameplay\SpawnPlayers.cs" />
     <Compile Include="Assets\Photon\PhotonLibs\WebSocket\SocketWebTcp.cs" />
     <Compile Include="Assets\Scripts\Menus\JoinMenu.cs" />
-    <Compile Include="Assets\SimpleAndroidNotifications\NotificationIcon.cs" />
-    <Compile Include="Assets\SimpleAndroidNotifications\NotificationParams.cs" />
     <Compile Include="Assets\Scripts\Gameplay\SpawnPoint.cs" />
     <Compile Include="Assets\Scripts\Gameplay\SetNickName.cs" />
     <Compile Include="Assets\Scripts\Gameplay\DiscoSpin.cs" />

@@ -13,7 +13,7 @@ m_ProjectFiles:
     m_ContentTrackingEnabled: 1
     m_ModificationDate:
       serializedVersion: 2
-      ticks: 637553856114895208
+      ticks: 637577532285837300
     m_Hash: 1542203063
 m_EmbeddedPackageManifests:
   m_ManifestsStatus: {}
@@ -183,6 +183,7 @@ m_PackageAssets:
         - 2.7.3
         - 2.8.0-exp.1
         - 2.8.0-exp.2
+        - 2.8.0-pre.1
         compatible:
         - 2.5.0
         - 2.6.0-preview.2
@@ -202,6 +203,7 @@ m_PackageAssets:
         - 2.7.3
         - 2.8.0-exp.1
         - 2.8.0-exp.2
+        - 2.8.0-pre.1
         verified: 2.6.4
       dependencies: []
       resolvedDependencies: []
@@ -391,6 +393,7 @@ m_PackageAssets:
         - 3.0.4
         - 3.0.5
         - 3.0.6
+        - 3.0.7
         compatible:
         - 1.0.2
         - 1.0.6
@@ -416,6 +419,7 @@ m_PackageAssets:
         - 3.0.4
         - 3.0.5
         - 3.0.6
+        - 3.0.7
         verified: 1.2.1
       dependencies:
       - name: com.unity.test-framework
@@ -484,6 +488,7 @@ m_PackageAssets:
         - 2.0.3
         - 2.0.5
         - 2.0.7
+        - 2.0.8
         compatible:
         - 1.0.2
         - 1.0.3
@@ -497,7 +502,8 @@ m_PackageAssets:
         - 2.0.3
         - 2.0.5
         - 2.0.7
-        verified: 2.0.7
+        - 2.0.8
+        verified: 2.0.8
       dependencies: []
       resolvedDependencies: []
       keywords: []
@@ -566,6 +572,7 @@ m_PackageAssets:
         - 1.0.0
         - 1.0.1
         - 1.0.2
+        - 1.1.0-pre.5
         - 1.1.0-preview.1
         - 1.1.0-preview.2
         - 1.1.0-preview.3
@@ -594,6 +601,7 @@ m_PackageAssets:
         - 1.0.0
         - 1.0.1
         - 1.0.2
+        - 1.1.0-pre.5
         - 1.1.0-preview.1
         - 1.1.0-preview.2
         - 1.1.0-preview.3
@@ -683,6 +691,7 @@ m_PackageAssets:
         - 1.2.1-preview
         - 1.3.0
         - 1.3.2
+        - 1.4.1
         compatible:
         - 1.0.0-preview.4
         - 1.0.0-preview.5
@@ -713,6 +722,7 @@ m_PackageAssets:
         - 1.2.1-preview
         - 1.3.0
         - 1.3.2
+        - 1.4.1
         verified: 1.3.2
       dependencies:
       - name: com.unity.modules.androidjni
@@ -1118,12 +1128,14 @@ m_PackageAssets:
         - 1.1.20
         - 1.1.22
         - 1.1.24
+        - 1.1.26
         compatible:
         - 1.1.19
         - 1.1.20
         - 1.1.22
         - 1.1.24
-        verified: 1.1.24
+        - 1.1.26
+        verified: 1.1.26
       dependencies:
       - name: com.unity.ext.nunit
         version: 1.0.6
@@ -1386,6 +1398,7 @@ m_PackageAssets:
         - 1.4.5
         - 1.4.6
         - 1.4.7
+        - 1.4.8
         - 1.5.0-pre.2
         - 1.5.0-preview.1
         - 1.5.0-preview.2
@@ -1397,8 +1410,11 @@ m_PackageAssets:
         - 1.5.1-pre.3
         - 1.5.2
         - 1.5.4
+        - 1.5.5
         - 1.6.0-pre.1
         - 1.6.0-pre.3
+        - 1.6.0-pre.4
+        - 1.6.0-pre.5
         compatible:
         - 1.2.6
         - 1.2.7
@@ -1439,6 +1455,7 @@ m_PackageAssets:
         - 1.4.5
         - 1.4.6
         - 1.4.7
+        - 1.4.8
         - 1.5.0-pre.2
         - 1.5.0-preview.1
         - 1.5.0-preview.2
@@ -1450,8 +1467,11 @@ m_PackageAssets:
         - 1.5.1-pre.3
         - 1.5.2
         - 1.5.4
+        - 1.5.5
         - 1.6.0-pre.1
         - 1.6.0-pre.3
+        - 1.6.0-pre.4
+        - 1.6.0-pre.5
         verified: 1.3.7
       dependencies:
       - name: com.unity.modules.director

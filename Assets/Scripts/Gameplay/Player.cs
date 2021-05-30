@@ -14,7 +14,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
 {
     #region Member Variables
     //Containers
-    public Dictionary<byte, Card> myCards = new Dictionary<byte, Card>();
+    [SerializeField] Dictionary<byte, Card> myCards = new Dictionary<byte, Card>();
     public Dictionary<byte, Image> uiCards = new Dictionary<byte, Image>();
     List<byte> cardsToPlay = new List<byte>();
     public Stack<Player> players = new Stack<Player>();
@@ -53,6 +53,13 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
     public int GetSpawnPoint()
     {
         return spawnPoint;
+    }
+    #endregion
+
+    #region Getters/Setters
+    public Dictionary<byte, Card> GetMyCards()
+    {
+        return myCards;
     }
     #endregion
 
@@ -202,7 +209,7 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
                         #endregion
 
                         deck.PlayCard(cards);
-                        playerHud.topCardPrompt.GetComponent<Image>().sprite = deck.GetPlayDeckTopCard().GetCardSprite();
+                        playerHud.topCardPrompt.GetComponent<Image>().sprite = deck.GetPlayDeckTopCard().GetCardSprite(); 
                     }
                 }
                 break;
@@ -287,8 +294,9 @@ public class Player : MonoBehaviourPunCallbacks, IPunInstantiateMagicCallback
                 break;
 
             case 8:
+                //------Handle Game Over
                 {
-                    //------Handle Game Over
+
                     if (view.IsMine)
                     {
                         string[] message = (string[])photonEvent.CustomData;

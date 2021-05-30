@@ -1,5 +1,4 @@
 ﻿
-using Assets.SimpleAndroidNotifications;
 using Photon.Pun;
 using System;
 using System.Collections;
@@ -164,7 +163,7 @@ public class HudHandler : MonoBehaviour
 
         player.uiCards.Clear();
 
-        foreach (KeyValuePair<byte, Card> card in player.myCards)
+        foreach (KeyValuePair<byte, Card> card in player.GetMyCards())
         {
             Image imageInstance = Instantiate(imagePrefab);
             imageInstance.transform.SetParent(handStartPosition.transform, false);
@@ -185,7 +184,7 @@ public class HudHandler : MonoBehaviour
 
     public void SortHand()
     {
-        List<KeyValuePair<byte, Card>> myList = player.myCards.ToList();
+        List<KeyValuePair<byte, Card>> myList = player.GetMyCards().ToList();
 
         myList.Sort(
             delegate (KeyValuePair<byte, Card> pair1, KeyValuePair<byte, Card> pair2)
@@ -194,11 +193,11 @@ public class HudHandler : MonoBehaviour
             }
         );
 
-        player.myCards.Clear();
+        player.GetMyCards().Clear();
 
         foreach (KeyValuePair<byte, Card> card in myList)
         {
-            player.myCards.Add(card.Key, card.Value);
+            player.GetMyCards().Add(card.Key, card.Value);
         }
         UpdateCardUI();
     }

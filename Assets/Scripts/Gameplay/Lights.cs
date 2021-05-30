@@ -5,7 +5,6 @@ using UnityEngine;
 public class Lights : MonoBehaviour
 {
     public GameObject mainLight = null;
-    public GameObject deckLight = null;
     public GameObject discoLight = null;
 
     private bool isDiscoMode = false;
@@ -14,7 +13,6 @@ public class Lights : MonoBehaviour
     public void DiscoMode()
     {
         mainLight.SetActive(false);
-        deckLight.SetActive(false);
         discoLight.SetActive(true);
         isDiscoMode = true;
         discoModeTimeout = 30f;
@@ -31,7 +29,6 @@ public class Lights : MonoBehaviour
             else 
             {
                 mainLight.SetActive(true);
-                deckLight.SetActive(true);
                 isDiscoMode = false;
             }
         }

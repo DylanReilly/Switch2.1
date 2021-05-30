@@ -31,6 +31,8 @@ public class TurnHandler : MonoBehaviour
     public void ReverseOrder()
     {
         playerQueue.Reverse();
+        playerQueue[playerQueue.Count-1].SetCinemachineCamera(0);
+        playerQueue[0].SetCinemachineCamera(1);
     }
 
     //Moves a player from the top of the list to the bottom
